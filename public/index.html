@@ -149,20 +149,21 @@
 
     <div class="card sticky">
       <h2>嗅探结果</h2>
+      <p class="hint small key-hint"><span class="hint-ic" data-ic="sparkle"></span>「存在·无权」= 模型已存在但未对你开放——最有价值的信号，通常意味着新模型正在内测或即将发布。</p>
       <div class="stat-grid" id="statGrid">
-        <div class="stat s-open"><b id="statOpen">0</b><span>已开放</span></div>
-        <div class="stat s-locked"><b id="statLocked">0</b><span>存在·无权 🔥</span></div>
-        <div class="stat s-likely"><b id="statLikely">0</b><span>疑似存在</span></div>
-        <div class="stat s-notfound"><b id="statNotFound">0</b><span>不存在</span></div>
-        <div class="stat s-unknown"><b id="statUnknown">0</b><span>无法判定</span></div>
-        <div class="stat s-total"><b id="statTotal">0</b><span>已探测</span></div>
+        <div class="stat s-locked"><span class="stat-ic" data-ic="locked"></span><b id="statLocked">0</b><span class="lbl">存在·无权</span></div>
+        <div class="stat s-likely"><span class="stat-ic" data-ic="likely"></span><b id="statLikely">0</b><span class="lbl">疑似存在</span></div>
+        <div class="stat s-open"><span class="stat-ic" data-ic="open"></span><b id="statOpen">0</b><span class="lbl">可用</span></div>
+        <div class="stat s-notfound"><span class="stat-ic" data-ic="notfound"></span><b id="statNotFound">0</b><span class="lbl">不存在</span></div>
+        <div class="stat s-unknown"><span class="stat-ic" data-ic="unknown"></span><b id="statUnknown">0</b><span class="lbl">无法判定</span></div>
+        <div class="stat s-total"><span class="stat-ic" data-ic="total"></span><b id="statTotal">0</b><span class="lbl">已探测</span></div>
       </div>
 
       <div class="filters" id="filters">
         <button class="filter active" data-f="all">全部</button>
-        <button class="filter f-locked" data-f="locked">🔥 存在·无权</button>
+        <button class="filter f-locked" data-f="locked">存在·无权</button>
         <button class="filter f-likely" data-f="likely">疑似存在</button>
-        <button class="filter f-open" data-f="open">已开放</button>
+        <button class="filter f-open" data-f="open">可用</button>
         <button class="filter f-notfound" data-f="notfound">不存在</button>
         <button class="filter f-unknown" data-f="unknown">无法判定</button>
       </div>
