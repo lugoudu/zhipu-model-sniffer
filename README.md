@@ -22,25 +22,39 @@
 2. **基线比对**：任何候选的响应若与基线签名完全一致，强制归为「不存在」，避免文案变化导致的误报；
 3. **原始证据展示**：每条结果都保留 HTTP 状态、错误码、原始消息与延迟，日志区可人工复核，分类只是辅助判断。
 
-## 部署到 GitHub Pages（推荐，全程免费）
+## 部署与更新（gh-pages 分支模式，当前线上方案）
 
-仓库已内置 GitHub Actions 工作流（`.github/workflows/deploy.yml`，以 `public/` 为站点根），三步上线：
+线上地址：<https://lugoudu.github.io/zhipu-model-sniffer/>
 
-1. 在 GitHub 新建一个仓库（**Public**——免费账号的 Pages 只支持公开仓库）
-2. 推送本目录：
+仓库采用**双分支**结构：
 
-   ```bash
-   cd zhipu-model-sniffer
-   git init && git add -A && git commit -m "init: zhipu model sniffer"
-   git remote add origin git@github.com:<你的用户名>/<仓库名>.git
-   git branch -M main && git push -u origin main
-   ```
+- `main`：源码分支（`public/` 为站点源文件，`README.md`、`server.js` 等仅存于此）
+- `gh-pages`：部署分支（站点根，内容 = `public/` 平铺 + `.nojekyll`），GitHub Pages 从该分支构建
 
-3. 打开仓库 **Settings → Pages → Build and deployment → Source**，选择 **GitHub Actions**（首次推送后工作流会自动运行，也可以在 Actions 页手动触发）
+> 之所以不用 GitHub Actions 工作流：推送 `.github/workflows/` 需要 token 具备 `workflow` scope，当前 gh CLI token（gist, read:org, repo）不具备。工作流样本保留在 `docs/deploy.yml.sample`，若将来想改为 Actions 自动部署，把它移回 `.github/workflows/deploy.yml` 并在 Settings → Pages 把 Source 切到 GitHub Actions 即可。
 
-完成后访问 `https://<你的用户名>.github.io/<仓库名>/` 即可。以后每次 `git push` 自动重新部署。
+**更新站点的操作**（改完 `public/` 下文件后）：
 
-> 也可以用 `gh` CLI 一气呵成：`gh repo create zhipu-model-sniffer --public --source=. --push`，然后到 Settings → Pages 把 Source 切到 GitHub Actions。
+```bash
+cd zhipu-model-sniffer
+git checkout main
+# ...修改 public/ 下的文件，提交...
+git push
+git checkout gh-pages
+git rm -q app.js candidates.js index.html style.css 2>/dev/null
+cp public/* . && git add -A && git commit -m "deploy: update site" && git push
+git checkout main
+```
+
+**从零复现部署**（新机器 / 新仓库）：
+
+```bash
+git init -b main && git add -A && git commit -m "init"
+gh repo create zhipu-model-sniffer --public --source=. --push
+git checkout -b gh-pages && git rm -rf -q . && git checkout main -- public/
+cp -r public/* . && touch .nojekyll && git add -A && git commit -m "deploy" && git push -u origin gh-pages
+# Settings → Pages → Source 选 "Deploy from a branch" → gh-pages / (root)
+```
 
 ## 功能
 
@@ -80,12 +94,13 @@ python3 -m http.server 8787 --directory public
 
 ```
 zhipu-model-sniffer/
-├── .github/workflows/deploy.yml  # GitHub Pages 自动部署（站点根 = public/）
-├── public/
+├── public/                       # 站点源文件（main 分支）
 │   ├── index.html                # 单页布局
 │   ├── app.js                    # 嗅探引擎 + 自适应分类器 + 直连智谱逻辑
 │   ├── candidates.js             # 内置候选词典（74 个）+ 生成器选项
 │   └── style.css                 # 深色主题样式
+├── docs/deploy.yml.sample        # （可选）Actions 自动部署工作流样本
 ├── server.js                     # （遗留，可选）早期本地代理版
-└── README.md
+├── README.md
+└── gh-pages 分支                  # 部署内容 = public/ 平铺 + .nojekyll
 ```
