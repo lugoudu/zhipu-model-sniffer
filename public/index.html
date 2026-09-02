@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>智谱模型嗅探站 · GLM Model Probe</title>
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕵️</text></svg>" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">🕵️</span>
+    <div>
+      <h1>智谱模型嗅探站</h1>
+      <p class="sub">GLM Model Probe · 通过错误信号差异探测“存在但未开放”的模型</p>
+    </div>
+  </div>
+  <div class="conn">
+    <span id="connDot" class="dot"></span>
+    <span id="connText">连接中…</span>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- 左列：配置与控制 -->
+  <section class="col-left">
+
+    <!-- API Key -->
+    <div class="card" id="cardKey">
+      <h2>① API Key</h2>
+      <p class="hint">Key 只保存在你浏览器的 localStorage 中，嗅探时由你的浏览器<b>直连智谱官方 API</b>——本站为纯静态页面，任何服务器都不经手你的 Key 或请求。密钥来自<a href="https://open.bigmodel.cn/usercenter/apikeys" target="_blank" rel="noopener">智谱开放平台</a>。</p>
+      <div class="key-row">
+        <input id="apiKeyInput" type="password" placeholder="粘贴 API Key，例如 xxxxxxxx.xxxxxxxx" autocomplete="off" spellcheck="false" />
+        <button id="toggleKeyBtn" class="btn ghost" title="显示/隐藏">👁</button>
+      </div>
+      <div class="row-btns">
+        <button id="saveKeyBtn" class="btn primary">保存 Key</button>
+        <button id="verifyKeyBtn" class="btn">验证有效性</button>
+        <button id="clearKeyBtn" class="btn danger ghost">清除</button>
+      </div>
+      <div id="keyStatus" class="status-line" data-state="idle">未验证</div>
+    </div>
+
+    <!-- 对照基线 -->
+    <div class="card" id="cardBaseline">
+      <h2>② 对照基线</h2>
+      <p class="hint">嗅探前建议先做两件事：<b>拉取官方模型列表</b>确认 Key 可用并得到“已开放”名单；<b>错误形态校准</b>用随机乱名记录“模型不存在”的真实报错，嗅探结果会与它比对，避免误判。</p>
+      <div class="row-btns">
+        <button id="fetchModelsBtn" class="btn">拉取官方模型列表</button>
+        <button id="calibrateBtn" class="btn">错误形态校准</button>
+      </div>
+      <div id="baselineStatus" class="status-line" data-state="idle">尚未拉取</div>
+      <div id="openModelsBox" class="chips-box hidden">
+        <div class="chips-title">官方列表中的已开放模型（<span id="openModelsCount">0</span>）</div>
+        <div id="openModelsChips" class="chips"></div>
+      </div>
+      <div id="calibBox" class="calib-box hidden">
+        <div class="chips-title">“不存在”基线形态（乱名实测）</div>
+        <pre id="calibDetail" class="raw-pre"></pre>
+      </div>
+    </div>
+
+    <!-- 候选名单 -->
+    <div class="card" id="cardCandidates">
+      <h2>③ 候选模型名单</h2>
+      <p class="hint">内置词典按智谱命名规律外推了疑似/未来模型名，可自由增删。也可用下方生成器按「版本 × 变体」批量构造。</p>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="builtin">内置词典</button>
+        <button class="tab" data-tab="custom">自定义</button>
+        <button class="tab" data-tab="gen">生成器</button>
+      </div>
+
+      <!-- 内置词典 -->
+      <div class="tab-pane active" id="pane-builtin">
+        <div class="dict-toolbar">
+          <label class="chk"><input type="checkbox" id="selAllBuiltin" checked /> 全选</label>
+          <span class="count" id="builtinCount">0 / 0 已选</span>
+        </div>
+        <div id="builtinGroups"></div>
+      </div>
+
+      <!-- 自定义 -->
+      <div class="tab-pane" id="pane-custom">
+        <p class="hint">每行一个模型名（会自动去重、转小写、去除非法字符）：</p>
+        <textarea id="customInput" rows="6" placeholder="glm-5.4&#10;glm-5.5-air&#10;my-secret-model"></textarea>
+        <div class="row-btns">
+          <button id="applyCustomBtn" class="btn">并入候选名单</button>
+          <button id="clearCustomBtn" class="btn ghost danger">清空自定义</button>
+        </div>
+      </div>
+
+      <!-- 生成器 -->
+      <div class="tab-pane" id="pane-gen">
+        <p class="hint">基础版本名（逗号或空格分隔）：</p>
+        <input id="genBase" type="text" value="glm-5.4, glm-5.5, glm-6" spellcheck="false" />
+        <p class="hint">要尝试的变体后缀：</p>
+        <div id="genSuffixes" class="chips selectable"></div>
+        <div class="row-btns">
+          <button id="genPreviewBtn" class="btn ghost">预览</button>
+          <button id="genApplyBtn" class="btn">并入候选名单</button>
+        </div>
+        <div id="genPreview" class="gen-preview hidden"></div>
+      </div>
+
+      <div class="cand-summary" id="candSummary">候选名单为空</div>
+    </div>
+
+    <!-- 嗅探控制 -->
+    <div class="card" id="cardRun">
+      <h2>④ 开始嗅探</h2>
+      <div class="run-settings">
+        <label>并发数
+          <select id="concurrency">
+            <option value="1">1（最稳妥）</option>
+            <option value="2" selected>2（推荐）</option>
+            <option value="3">3</option>
+            <option value="4">4（易触发限流）</option>
+          </select>
+        </label>
+        <label>请求间隔
+          <select id="intervalMs">
+            <option value="200">200ms（快）</option>
+            <option value="500" selected>500ms（推荐）</option>
+            <option value="1000">1s（慢）</option>
+            <option value="2000">2s（极慢）</option>
+          </select>
+        </label>
+        <label class="chk"><input type="checkbox" id="skipOpen" checked /> 跳过官方列表中已开放的模型</label>
+      </div>
+      <div class="row-btns">
+        <button id="startBtn" class="btn primary big">🚀 开始嗅探</button>
+        <button id="stopBtn" class="btn danger" disabled>⏹ 停止</button>
+      </div>
+      <div class="progress-wrap hidden" id="progressWrap">
+        <div class="progress"><div id="progressBar"></div></div>
+        <div class="progress-text" id="progressText">0 / 0</div>
+      </div>
+      <p class="hint small">嗅探请求使用 <code>max_tokens=1</code> 最小化消耗：免费模型零成本，付费模型每次至多消耗 1 个输出 token。</p>
+    </div>
+
+  </section>
+
+  <!-- 右列：结果 -->
+  <section class="col-right">
+
+    <div class="card sticky">
+      <h2>嗅探结果</h2>
+      <div class="stat-grid" id="statGrid">
+        <div class="stat s-open"><b id="statOpen">0</b><span>已开放</span></div>
+        <div class="stat s-locked"><b id="statLocked">0</b><span>存在·无权 🔥</span></div>
+        <div class="stat s-likely"><b id="statLikely">0</b><span>疑似存在</span></div>
+        <div class="stat s-notfound"><b id="statNotFound">0</b><span>不存在</span></div>
+        <div class="stat s-unknown"><b id="statUnknown">0</b><span>无法判定</span></div>
+        <div class="stat s-total"><b id="statTotal">0</b><span>已探测</span></div>
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="filter active" data-f="all">全部</button>
+        <button class="filter f-locked" data-f="locked">🔥 存在·无权</button>
+        <button class="filter f-likely" data-f="likely">疑似存在</button>
+        <button class="filter f-open" data-f="open">已开放</button>
+        <button class="filter f-notfound" data-f="notfound">不存在</button>
+        <button class="filter f-unknown" data-f="unknown">无法判定</button>
+      </div>
+
+      <div id="resultList" class="result-list"></div>
+
+      <div class="row-btns export-row">
+        <button id="exportJsonBtn" class="btn ghost">导出 JSON</button>
+        <button id="exportCsvBtn" class="btn ghost">导出 CSV</button>
+        <button id="clearResultsBtn" class="btn ghost danger">清空结果</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>请求日志</h2>
+      <p class="hint small">保留最近的原始请求证据（不含 Key），用于人工复核分类是否正确。</p>
+      <pre id="logBox" class="raw-pre log">等待操作…</pre>
+    </div>
+
+  </section>
+</main>
+
+<footer class="foot">
+  仅供学习与技术研究 · 探测行为受平台限速约束 · 请勿高频滥用 · 结果为概率性推断，以智谱官方发布为准
+</footer>
+
+<script src="candidates.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
