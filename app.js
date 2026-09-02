@@ -91,7 +91,9 @@ function classify(model, raw) {
   if (raw.status === 0 || code === 'network')
     return { ...base, cls: 'unknown', note: '网络错误或超时' };
 
-  if (code === '1000' || code === '1001' || (raw.status === 401 && /身份验证|authorization/i.test(text)))
+  // 任何 401 都是认证问题（实测有多种文案：1000 身份验证失败 / token expired or incorrect），
+  // 不携带模型存在性信号，一律判定 Key 无效
+  if (raw.status === 401 || code === '1000' || code === '1001')
     return { ...base, cls: 'unknown', note: 'KEY_INVALID', keyInvalid: true };
 
   // 校准比对：与“乱名基线”形态完全一致 → 不存在
@@ -251,8 +253,8 @@ $('verifyKeyBtn').onclick = async () => {
     } else {
       const body = parseBody(data.body) || {};
       const code = body.error && body.error.code, msg = body.error && body.error.message;
-      if (code === '1000' || code === '1001') {
-        setStatus($('keyStatus'), 'err', `❌ Key 无效（${code} ${msg || ''}）`);
+      if (data.status === 401 || code === '1000' || code === '1001') {
+        setStatus($('keyStatus'), 'err', `❌ Key 无效（HTTP ${data.status} ${code || ''} ${msg || ''}）`);
       } else {
         setStatus($('keyStatus'), 'warn', `⚠️ Key 已发出请求但返回 ${data.status}（${code || ''} ${msg || ''}）——可继续尝试嗅探`);
       }
