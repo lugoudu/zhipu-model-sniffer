@@ -171,47 +171,119 @@ label { color: var(--dim); font-size: 13px; }
 .stat-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 10px 0; }
 @media (max-width: 700px) { .stat-grid { grid-template-columns: repeat(3, 1fr); } }
 .stat {
-  background: #0d131c; border: 1px solid var(--line); border-radius: 10px;
-  padding: 8px 4px; text-align: center;
+  position: relative; overflow: hidden;
+  background: #0d131c; border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 4px 9px; text-align: center;
 }
-.stat b { display: block; font-size: 20px; color: #fff; }
-.stat span { font-size: 11px; color: var(--dim); white-space: nowrap; }
-.s-locked b { color: var(--fire); }
-.s-likely b { color: var(--warn); }
-.s-open b { color: var(--ok); }
-.s-total b { color: var(--accent); }
+.stat-ic { display: inline-flex; color: #5b6b7e; margin-bottom: 3px; }
+.stat-ic svg { width: 15px; height: 15px; }
+.stat b { display: block; font-size: 20px; color: #fff; line-height: 1.15; }
+.stat .lbl { display: block; font-size: 11px; color: var(--dim); white-space: nowrap; margin-top: 1px; }
+.s-locked {
+  border-color: rgba(255, 93, 93, 0.5);
+  background: linear-gradient(180deg, rgba(255, 93, 93, 0.14), rgba(255, 93, 93, 0.03));
+}
+.s-locked .stat-ic, .s-locked b { color: var(--fire); }
+.s-locked .lbl { color: #ffb3a7; }
+.s-likely .stat-ic, .s-likely b { color: var(--warn); }
+.s-open .stat-ic, .s-open b { color: var(--ok); }
+.s-unknown .stat-ic, .s-unknown b { color: var(--accent); }
+.s-total .stat-ic, .s-total b { color: var(--accent); }
 
 /* ---------- 过滤器 ---------- */
 .filters { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 12px; }
 .filter {
   background: transparent; border: 1px solid var(--line); color: var(--dim);
   border-radius: 999px; padding: 4px 12px; font-size: 12px; cursor: pointer; font-family: inherit;
+  display: inline-flex; align-items: center; gap: 5px;
 }
+.filter .fic { display: inline-flex; }
+.filter .fic svg { width: 13px; height: 13px; }
 .filter.active { border-color: var(--accent); color: #fff; background: rgba(79, 140, 255, 0.15); }
-.filter.f-locked.active { border-color: var(--fire); background: var(--fire-glow); }
+.filter.f-locked { color: #ff9d8f; }
+.filter.f-locked.active { border-color: var(--fire); color: #fff; background: var(--fire-glow); }
+
+/* 结果区价值提示行 */
+.key-hint { display: flex; align-items: center; gap: 5px; margin: 2px 0 4px; }
+.hint-ic { display: inline-flex; color: var(--warn); flex: none; }
+.hint-ic svg { width: 13px; height: 13px; }
 
 /* ---------- 结果列表 ---------- */
-.result-list { max-height: 460px; overflow: auto; display: flex; flex-direction: column; gap: 8px; }
-.empty { color: var(--dim); text-align: center; padding: 30px 10px; font-size: 13px; }
+.result-list { max-height: 460px; overflow: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
+.empty {
+  color: var(--dim); text-align: center; padding: 34px 10px; font-size: 13px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.empty .empty-ic { color: #3a4656; }
+.empty .empty-ic svg { width: 34px; height: 34px; }
+
 .result {
-  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+  display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: flex-start;
+  border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
   background: #0d131c; animation: fadeIn 0.25s ease;
 }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
-.result.r-locked { border-color: rgba(255, 93, 93, 0.55); box-shadow: 0 0 14px var(--fire-glow); }
-.result.r-likely { border-color: rgba(245, 185, 80, 0.45); }
-.r-main { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.r-icon { font-size: 15px; }
-.r-name { font-family: ui-monospace, Menlo, monospace; font-size: 14px; color: #fff; font-weight: 600; }
-.badge {
-  font-size: 11px; border-radius: 999px; padding: 1px 9px;
-  border: 1px solid var(--line); color: var(--dim);
+
+/* 图标块 */
+.r-tile {
+  width: 38px; height: 38px; border-radius: 10px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  background: #1a2330; color: var(--dim);
 }
-.b-open { color: var(--ok); border-color: rgba(62, 207, 142, 0.5); }
-.b-locked { color: #fff; background: var(--fire-glow); border-color: var(--fire); }
-.b-likely { color: var(--warn); border-color: rgba(245, 185, 80, 0.5); }
+.r-tile svg { width: 19px; height: 19px; }
+.r-open .r-tile { background: rgba(62, 207, 142, 0.12); color: var(--ok); }
+.r-locked .r-tile {
+  background: linear-gradient(135deg, #ff5d5d, #f5b950); color: #fff;
+  box-shadow: 0 2px 12px rgba(255, 93, 93, 0.35);
+}
+.r-likely .r-tile { background: rgba(245, 185, 80, 0.12); color: var(--warn); }
+.r-notfound .r-tile { background: #161c26; color: #6b7686; }
+.r-unknown .r-tile { background: rgba(79, 140, 255, 0.10); color: var(--accent); }
+
+/* 「存在·无权」卡片：渐变描边 + 辉光，强调内测发现 */
+.result.r-locked {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, #1a1216, #130e13) padding-box,
+    linear-gradient(135deg, rgba(255, 93, 93, 0.85), rgba(245, 185, 80, 0.55)) border-box;
+  box-shadow: 0 0 20px rgba(255, 93, 93, 0.20);
+}
+.result.r-likely { border-color: rgba(245, 185, 80, 0.4); }
+
+.r-body { min-width: 0; }
+.r-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.r-name { font-family: ui-monospace, Menlo, monospace; font-size: 14px; color: #fff; font-weight: 600; }
+
+.badge {
+  font-size: 11px; border-radius: 999px; padding: 2px 10px;
+  border: 1px solid var(--line); color: var(--dim); font-weight: 500;
+}
+.b-open { color: var(--ok); border-color: rgba(62, 207, 142, 0.45); background: rgba(62, 207, 142, 0.08); }
+.b-locked { color: #ffd9d0; border-color: rgba(255, 93, 93, 0.6); background: rgba(255, 93, 93, 0.16); }
+.b-likely { color: var(--warn); border-color: rgba(245, 185, 80, 0.45); background: rgba(245, 185, 80, 0.08); }
 .b-notfound { color: #6b7686; }
-.r-sub { margin-top: 4px; font-size: 11.5px; color: var(--dim); font-family: ui-monospace, Menlo, monospace; word-break: break-all; }
+.b-unknown { color: var(--accent); border-color: rgba(79, 140, 255, 0.4); }
+
+/* 内测标签：流光渐变 */
+.hot-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; padding: 2px 10px; border-radius: 999px;
+  color: #fff; font-style: normal; font-weight: 600;
+  background: linear-gradient(120deg, #ff5d5d, #f5b950, #ff5d5d);
+  background-size: 200% 100%;
+  animation: shimmer 2.4s linear infinite;
+}
+.hot-tag svg { width: 11px; height: 11px; }
+@keyframes shimmer { from { background-position: 0% 0; } to { background-position: 200% 0; } }
+
+/* 证据 chips 与消息行 */
+.r-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+.pchip {
+  font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; color: #93a3b8;
+  background: #0a0f16; border: 1px solid var(--line); padding: 1px 8px; border-radius: 6px;
+}
+.r-msg { margin-top: 6px; font-size: 12px; color: #8b97a8; word-break: break-all; }
+.r-locked .r-msg { color: #d9a29a; }
 .export-row { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
 
 /* ---------- 日志 / 校准 ---------- */

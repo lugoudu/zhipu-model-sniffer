@@ -26,11 +26,25 @@ const LS = {
 };
 
 const CLS_META = {
-  open:     { label: '已开放',   icon: '🟢', desc: '返回 200，模型对当前 Key 完全开放' },
-  locked:   { label: '存在·无权', icon: '🔥', desc: '模型名通过了存在性校验但被拒：疑似未开放/内测/即将发布' },
-  likely:   { label: '疑似存在', icon: '⚡', desc: '报错类型出现在模型校验之后（接口不匹配/计费/参数），大概率存在' },
-  notfound: { label: '不存在',   icon: '🚫', desc: '与“模型不存在”基线形态一致' },
-  unknown:  { label: '无法判定', icon: '🌫', desc: '限流、网络或其他未识别错误，可重试' },
+  open:     { label: '可用',     desc: '返回 200，模型对当前 Key 完全开放' },
+  locked:   { label: '存在·无权', desc: '模型名通过了存在性校验但被拒访问——典型信号：新模型内测中或即将发布' },
+  likely:   { label: '疑似存在', desc: '报错类型出现在模型校验之后（接口不匹配/计费/参数），大概率存在' },
+  notfound: { label: '不存在',   desc: '与“模型不存在”基线形态一致' },
+  unknown:  { label: '无法判定', desc: '限流、网络或其他未识别错误，可重试' },
+};
+
+// 现代线性图标（lucide 风格，stroke 跟随文字颜色）
+const svgWrap = (inner) =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+const ICONS = {
+  open:     svgWrap('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'),
+  locked:   svgWrap('<rect x="3" y="11" width="18" height="11" rx="2.5"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'),
+  likely:   svgWrap('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>'),
+  notfound: svgWrap('<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'),
+  unknown:  svgWrap('<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>'),
+  total:    svgWrap('<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>'),
+  radar:    svgWrap('<circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/><circle cx="12" cy="12" r="3"/>'),
+  sparkle:  svgWrap('<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/>'),
 };
 
 // ---------------- state ----------------
@@ -94,7 +108,7 @@ function classify(model, raw) {
   // 任何 401 都是认证问题（实测有多种文案：1000 身份验证失败 / token expired or incorrect），
   // 不携带模型存在性信号，一律判定 Key 无效
   if (raw.status === 401 || code === '1000' || code === '1001')
-    return { ...base, cls: 'unknown', note: 'KEY_INVALID', keyInvalid: true };
+    return { ...base, cls: 'unknown', note: 'Key 无效或已过期', keyInvalid: true };
 
   // 校准比对：与“乱名基线”形态完全一致 → 不存在
   if (calib && base.sig === calib.sig)
@@ -460,9 +474,10 @@ function renderResults() {
   if (!items.length) {
     const d = document.createElement('div');
     d.className = 'empty';
-    d.textContent = currentFilter === 'all'
-      ? '尚无结果 —— 配置好 Key 与候选名单后点「开始嗅探」。'
-      : '该分类下暂无结果。';
+    const text = currentFilter === 'all'
+      ? '尚无结果 —— 配置好 Key 与候选名单后点「开始嗅探」'
+      : '该分类下暂无结果';
+    d.innerHTML = `<span class="empty-ic">${ICONS.radar}</span><span>${text}</span>`;
     box.appendChild(d);
     return;
   }
@@ -470,16 +485,51 @@ function renderResults() {
     const meta = CLS_META[r.cls] || CLS_META.unknown;
     const card = document.createElement('div');
     card.className = `result r-${r.cls}`;
-    const main = document.createElement('div');
-    main.className = 'r-main';
-    main.innerHTML = `<span class="r-icon">${meta.icon}</span><span class="r-name"></span><span class="badge b-${r.cls}">${meta.label}</span>`;
-    main.querySelector('.r-name').textContent = r.model;
-    card.appendChild(main);
-    const sub = document.createElement('div');
-    sub.className = 'r-sub';
-    const extra = r.note ? ` · ${r.note}` : '';
-    sub.textContent = `HTTP ${r.status} · code=${r.code || '-'} · ${r.msg || '-'}${extra} · ${r.latencyMs}ms`;
-    card.appendChild(sub);
+
+    // 图标块
+    const tile = document.createElement('div');
+    tile.className = 'r-tile';
+    tile.innerHTML = ICONS[r.cls] || ICONS.unknown;
+    tile.title = meta.desc;
+    card.appendChild(tile);
+
+    // 主体
+    const body = document.createElement('div');
+    body.className = 'r-body';
+
+    const head = document.createElement('div');
+    head.className = 'r-head';
+    const name = document.createElement('span');
+    name.className = 'r-name';
+    name.textContent = r.model;
+    head.appendChild(name);
+    const badge = document.createElement('span');
+    badge.className = `badge b-${r.cls}`;
+    badge.textContent = meta.label;
+    head.appendChild(badge);
+    if (r.cls === 'locked') {
+      const hot = document.createElement('span');
+      hot.className = 'hot-tag';
+      hot.title = '模型已存在但未对你开放——通常意味着内测中或即将发布';
+      hot.innerHTML = `${ICONS.sparkle}<i>疑似内测中</i>`;
+      head.appendChild(hot);
+    }
+    body.appendChild(head);
+
+    const chips = document.createElement('div');
+    chips.className = 'r-chips';
+    chips.innerHTML =
+      `<span class="pchip">HTTP ${r.status}</span>` +
+      `<span class="pchip">code ${r.code || '-'}</span>` +
+      `<span class="pchip">${r.latencyMs} ms</span>`;
+    body.appendChild(chips);
+
+    const msg = document.createElement('div');
+    msg.className = 'r-msg';
+    msg.textContent = r.note ? `${r.note} · ${r.msg || '-'}` : (r.msg || '-');
+    body.appendChild(msg);
+
+    card.appendChild(body);
     box.appendChild(card);
   });
 }
@@ -603,6 +653,13 @@ async function init() {
   // 纯静态版：无本地服务依赖，浏览器直连智谱（平台已开放 CORS）
   $('connDot').className = 'dot ok';
   $('connText').textContent = '纯静态版 · 浏览器直连智谱';
+
+  // 注入 SVG 图标（统计卡 / 过滤器 / 提示行）
+  document.querySelectorAll('[data-ic]').forEach((el) => { el.innerHTML = ICONS[el.dataset.ic] || ''; });
+  document.querySelectorAll('#filters .filter').forEach((b) => {
+    const ic = ICONS[b.dataset.f] || ICONS.radar;
+    b.insertAdjacentHTML('afterbegin', `<span class="fic">${ic}</span>`);
+  });
   if (apiKey) {
     $('apiKeyInput').value = apiKey;
     setStatus($('keyStatus'), 'ok', `已载入保存的 Key（${maskKey(apiKey)}）`);
