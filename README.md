@@ -78,7 +78,7 @@ python3 -m http.server 8787 --directory public
 
 ## 使用流程
 
-1. **① API Key**：粘贴 [智谱开放平台](https://open.bigmodel.cn/usercenter/apikeys) 的 Key → 保存 → 点「验证有效性」（用免费模型零成本确认）
+1. **① API Key**：粘贴 [智谱开放平台](https://www.bigmodel.cn/apikey/platform) 的 Key → 保存 → 点「验证有效性」（用免费模型零成本确认）
 2. **② 对照基线**：拉取官方模型列表 → 错误形态校准（强烈建议）
 3. **③ 候选名单**：勾选内置词典 / 添加自定义 / 用生成器批量构造
 4. **④ 开始嗅探**：选并发与间隔 → 启动；关注 🔥「存在·无权」与 ⚡「疑似存在」
