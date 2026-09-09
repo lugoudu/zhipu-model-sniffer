@@ -20,7 +20,7 @@ const $ = (id) => document.getElementById(id);
 const LS = {
   key: 'zp_probe_apikey',
   custom: 'zp_probe_custom',
-  builtinSel: 'zp_probe_builtin_sel',
+  builtinSel: 'zp_probe_builtin_sel_v2', // v2：词典改为「≤5.2 剔除 + preview 组」后重置默认勾选
   results: 'zp_probe_results',
   openList: 'zp_probe_openlist',
 };
