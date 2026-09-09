@@ -1,7 +1,7 @@
 /* 内置候选词典（2026-09 策略调整）
  *
  * 规则一：glm 主线版本号 ≤ 5.2 的候选全部剔除——旧模型已无嗅探价值。
- * 规则二：新增 Preview 内测代号组：glm-{x}-preview-{a..z}（x 取 5.3 / 5.4 / 5.5 / 6），
+ * 规则二：新增 Preview 内测代号组：glm-x-preview-{a..z}（x 为字面代号），
  *         按字母序 a→z 依次探测，捕捉发布前的内测别名。
  *
  * 注意：版本号过滤只针对 glm 主线（glm-x.y）；
@@ -31,16 +31,13 @@ const OPEN_MODELS_SEED = {
   ],
 };
 
-// Preview 内测代号：版本 × 末位字母 a→z（字母序即探测序）
-const PREVIEW_VERSIONS = ['5.3', '5.4', '5.5', '6'];
+// Preview 内测代号：glm-x-preview-{a..z}（x 为字面代号，非版本号占位），按字母序 a→z 依次探测
 const PREVIEW_LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
-const PREVIEW_NAMES = PREVIEW_VERSIONS.flatMap((v) =>
-  PREVIEW_LETTERS.map((l) => `glm-${v}-preview-${l}`)
-);
+const PREVIEW_NAMES = PREVIEW_LETTERS.map((l) => `glm-x-preview-${l}`);
 
 // 悬念候选（全部 > glm-5.2；专用线除外）
 const CANDIDATE_GROUPS = {
-  'Preview 内测代号（a→z 依次探测）': PREVIEW_NAMES,
+  'Preview 内测代号（glm-x-preview-a→z）': PREVIEW_NAMES,
   '版本号外推（下一代）': [
     'glm-5.4', 'glm-5.5', 'glm-6',
     'glm-5.4-flash', 'glm-5.5-flash', 'glm-6-flash', 'glm-6-turbo',
