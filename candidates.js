@@ -1,7 +1,14 @@
-/* 内置候选词典：基于智谱官方已开放模型（2026-08 实测全景）+ 命名规律外推。
- * “已开放对照”用于跳过与对照；“悬念候选”是嗅探的主要目标。 */
+/* 内置候选词典（2026-09 策略调整）
+ *
+ * 规则一：glm 主线版本号 ≤ 5.2 的候选全部剔除——旧模型已无嗅探价值。
+ * 规则二：新增 Preview 内测代号组：glm-{x}-preview-{a..z}（x 取 5.3 / 5.4 / 5.5 / 6），
+ *         按字母序 a→z 依次探测，捕捉发布前的内测别名。
+ *
+ * 注意：版本号过滤只针对 glm 主线（glm-x.y）；
+ * 专用线（cogview / cogvideox / embedding / autoglm 等）编号独立，不受 5.2 规则约束。
+ */
 
-// 官方模型概览页确认的已开放模型（调用名小写）
+// 官方模型概览页确认的已开放模型（调用名小写）——仅作“已开放对照”，不参与默认嗅探
 const OPEN_MODELS_SEED = {
   '旗舰与主力文本': [
     'glm-5.3', 'glm-5.2', 'glm-5.1', 'glm-5', 'glm-5-turbo',
@@ -24,26 +31,28 @@ const OPEN_MODELS_SEED = {
   ],
 };
 
-// 悬念候选：按命名规律外推的“可能存在但未开放”的模型名
+// Preview 内测代号：版本 × 末位字母 a→z（字母序即探测序）
+const PREVIEW_VERSIONS = ['5.3', '5.4', '5.5', '6'];
+const PREVIEW_LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
+const PREVIEW_NAMES = PREVIEW_VERSIONS.flatMap((v) =>
+  PREVIEW_LETTERS.map((l) => `glm-${v}-preview-${l}`)
+);
+
+// 悬念候选（全部 > glm-5.2；专用线除外）
 const CANDIDATE_GROUPS = {
+  'Preview 内测代号（a→z 依次探测）': PREVIEW_NAMES,
   '版本号外推（下一代）': [
-    'glm-5.4', 'glm-5.5', 'glm-6', 'glm-4.8', 'glm-4.9',
+    'glm-5.4', 'glm-5.5', 'glm-6',
     'glm-5.4-flash', 'glm-5.5-flash', 'glm-6-flash', 'glm-6-turbo',
   ],
-  '旗舰变体外推（air / plus / pro / turbo）': [
+  '5.3 变体外推（当前顶点的后缀家族）': [
     'glm-5.3-plus', 'glm-5.3-air', 'glm-5.3-airx', 'glm-5.3-pro', 'glm-5.3-turbo',
-    'glm-5.2-air', 'glm-5.2-airx', 'glm-5.2-plus', 'glm-5.2-pro',
-    'glm-5-plus', 'glm-5-air', 'glm-5-airx', 'glm-5-pro',
-    'glm-4.7-plus', 'glm-4.7-air', 'glm-4.7-airx', 'glm-4.7-pro',
-    'glm-4.6-plus', 'glm-4.6-air', 'glm-4.6-pro', 'glm-4.6-flashx',
   ],
-  '多模态外推（V / OCR / AutoGLM）': [
-    'glm-5v', 'glm-5v-plus', 'glm-5v-flash',
-    'glm-5.2v', 'glm-5.3v', 'glm-5.3v-flash',
-    'glm-4.7v', 'glm-4.7v-flash', 'glm-4.6v-plus',
-    'glm-4.1v-thinking', 'glm-4.1v-thinking-pro',
-    'glm-ocr-2', 'glm-ocr-pro', 'glm-ocr-flash',
+  '多模态外推（> 5.2 的镜像线）': [
+    'glm-5.3v', 'glm-5.3v-flash', 'glm-5.3v-plus',
+    'glm-5.4v', 'glm-5.4v-flash', 'glm-5.5v', 'glm-6v',
     'autoglm-2', 'autoglm-pc', 'autoglm-browser',
+    'glm-ocr-2', 'glm-ocr-pro', 'glm-ocr-flash',
   ],
   '语音 / 视频生成外推': [
     'glm-asr', 'glm-asr-2', 'glm-asr-pro',
@@ -61,10 +70,10 @@ const CANDIDATE_GROUPS = {
   ],
 };
 
-// 生成器可选后缀（布尔选中态由前端管理，这里只提供选项）
+// 生成器可选后缀
 const GEN_SUFFIX_OPTIONS = [
   '', '-flash', '-flashx', '-air', '-airx', '-plus', '-pro', '-turbo', '-v', '-v-flash', '-thinking',
 ];
 
-// 已知免费模型（验证 Key 时优先用它，零成本）
+// 已知免费模型（验证 Key 时优先用它，零成本；不参与嗅探候选）
 const FREE_MODEL = 'glm-4.5-flash';
