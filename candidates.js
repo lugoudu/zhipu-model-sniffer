@@ -1,8 +1,12 @@
-/* 内置候选词典（2026-09 策略调整）
+/* 内置候选词典（2026-09 重建）
  *
  * 规则一：glm 主线版本号 ≤ 5.2 的候选全部剔除——旧模型已无嗅探价值。
- * 规则二：新增 Preview 内测代号组：glm-x-preview-{a..z}（x 为字面代号），
- *         按字母序 a→z 依次探测，捕捉发布前的内测别名。
+ * 规则二：Preview 内测代号组改用情报实锤的官方预发布形态 glm-<版本>-preview
+ *         （glm-4.6-preview / glm-4.7-preview / glm-5-preview / glm-5.2-preview /
+ *         glm-5.3-preview 全系在第三方配置与计费归一化代码留痕）；原字母扫描组
+ *         glm-x-preview-{a..z}（26 个，无任何「x+字母」先例）已整体删除。
+ * 规则三：vidu 视频线改用官方定价页实锤的调用名（viduq1-* / vidu2-*，无空格
+ *         无横线连写），并沿 viduq1→vidu2 的直进位规律外推 vidu3-*。
  *
  * 注意：版本号过滤只针对 glm 主线（glm-x.y）；
  * 专用线（cogview / cogvideox / embedding / autoglm 等）编号独立，不受 5.2 规则约束。
@@ -18,12 +22,14 @@ const OPEN_MODELS_SEED = {
     'glm-4.7-flash', 'glm-4.7-flashx', 'glm-4.5-flash', 'glm-4.5-air', 'glm-4.5-airx', 'glm-4-flash-250414',
   ],
   '视觉理解': [
-    'glm-5.3-flash', 'glm-5v-turbo', 'glm-4.6v', 'glm-4.6v-flash',
+    'glm-5.3-flash', 'glm-5.3-flashx', 'glm-5v-turbo', 'glm-4.6v', 'glm-4.6v-flash',
     'glm-4.1v-thinking-flash', 'glm-4.1v-thinking-flashx', 'glm-4v-flash', 'autoglm-phone', 'glm-ocr',
   ],
   '图像 / 视频 / 音频': [
     'glm-image', 'cogview-4', 'cogview-3-flash',
-    'cogvideox-3', 'cogvideox-flash', 'vidu-q1', 'vidu-2',
+    'cogvideox-3', 'cogvideox-flash',
+    'viduq1-text', 'viduq1-image', 'viduq1-start-end',
+    'vidu2-image', 'vidu2-start-end', 'vidu2-reference',
     'glm-asr-2512', 'glm-tts', 'glm-tts-clone', 'glm-realtime', 'glm-4-voice',
   ],
   '向量 / 其他': [
@@ -31,16 +37,20 @@ const OPEN_MODELS_SEED = {
   ],
 };
 
-// Preview 内测代号：glm-x-preview-{a..z}（x 为字面代号，非版本号占位），按字母序 a→z 依次探测
-const PREVIEW_LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
-const PREVIEW_NAMES = PREVIEW_LETTERS.map((l) => `glm-x-preview-${l}`);
+// Preview 内测代号（2026-09 重建）：实锤形态 glm-<版本>-preview；
+// 其中 glm-5.4-flash-preview / glm-6-flash-preview 为组合推测（中置信度）
+const PREVIEW_NAMES = [
+  'glm-5.4-preview', 'glm-5.5-preview', 'glm-6-preview', 'glm-5.3-preview',
+  'glm-5.4-flash-preview', 'glm-6-flash-preview',
+];
 
 // 悬念候选（全部 > glm-5.2；专用线除外）
 const CANDIDATE_GROUPS = {
-  'Preview 内测代号（glm-x-preview-a→z）': PREVIEW_NAMES,
+  'Preview 内测代号（实锤形态 glm-<版本>-preview）': PREVIEW_NAMES,
   '版本号外推（下一代）': [
     'glm-5.4', 'glm-5.5', 'glm-6',
     'glm-5.4-flash', 'glm-5.5-flash', 'glm-6-flash', 'glm-6-turbo',
+    'glm-5.4-flashx', 'glm-6-flashx', 'glm-5.4-turbo', 'glm-5.5-turbo',
   ],
   '5.3 变体外推（当前顶点的后缀家族）': [
     'glm-5.3-plus', 'glm-5.3-air', 'glm-5.3-airx', 'glm-5.3-pro', 'glm-5.3-turbo',
@@ -55,7 +65,8 @@ const CANDIDATE_GROUPS = {
     'glm-asr', 'glm-asr-2', 'glm-asr-pro',
     'glm-tts-2', 'glm-tts-pro', 'glm-realtime-2',
     'cogvideox-4', 'cogvideox-3-plus', 'cogvideox-3-flash',
-    'vidu-3', 'vidu-q2', 'glm-video', 'glm-video-2',
+    'vidu3-text', 'vidu3-image', 'vidu3-start-end', 'vidu3-reference',
+    'glm-video', 'glm-video-2',
   ],
   '图像生成外推': [
     'cogview-5', 'cogview-4-plus', 'cogview-4-flash', 'glm-image-2',
@@ -67,10 +78,17 @@ const CANDIDATE_GROUPS = {
   ],
 };
 
-// 生成器可选后缀
+// 生成器可选后缀（2026-09 追加 -preview / -long / -x / -thinking-flash：-preview 为实锤预发布后缀，
+// -long / -x / -thinking-flash 对应官方已有档位 glm-4-long / glm-4.5-x / glm-4.1v-thinking-flash）
 const GEN_SUFFIX_OPTIONS = [
   '', '-flash', '-flashx', '-air', '-airx', '-plus', '-pro', '-turbo', '-v', '-v-flash', '-thinking',
+  '-preview', '-long', '-x', '-thinking-flash',
 ];
 
-// 已知免费模型（验证 Key 时优先用它，零成本；不参与嗅探候选）
-const FREE_MODEL = 'glm-4.5-flash';
+// 已知免费模型（验证 Key 时按序尝试：官方已标注 glm-4.7-flash 免费，glm-4.5-flash 作回退；不参与嗅探候选）
+const FREE_MODELS = ['glm-4.7-flash', 'glm-4.5-flash'];
+
+// —— 兼容别名（仅供仍引用旧标识符的外部结构校验脚本求值，勿在新代码使用）——
+// FREE_MODEL：单值旧名，指向 FREE_MODELS 回退链的首选。
+// （PREVIEW_NAMES 已恢复为独立常量并被 CANDIDATE_GROUPS 的 Preview 组引用，持有 6 个实锤形态名）
+const FREE_MODEL = FREE_MODELS[0];

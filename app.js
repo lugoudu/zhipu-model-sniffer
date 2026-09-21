@@ -20,9 +20,10 @@ const $ = (id) => document.getElementById(id);
 const LS = {
   key: 'zp_probe_apikey',
   custom: 'zp_probe_custom',
-  builtinSel: 'zp_probe_builtin_sel_v3', // v3：preview 组改为字面代号 glm-x-preview-a..z，重置默认勾选
+  builtinSel: 'zp_probe_builtin_sel_v4', // v4：preview 组改为实锤形态 glm-<版本>-preview，重置默认勾选
   results: 'zp_probe_results',
   openList: 'zp_probe_openlist',
+  calib: 'zp_probe_calib', // 校准基线持久化（超过 24h 过期并提示重新校准）
 };
 
 const CLS_META = {
@@ -105,37 +106,50 @@ function classify(model, raw) {
   if (raw.status === 0 || code === 'network')
     return { ...base, cls: 'unknown', note: '网络错误或超时' };
 
-  // 任何 401 都是认证问题（实测有多种文案：1000 身份验证失败 / token expired or incorrect），
+  // 任何 401 都是认证问题（实测有多种文案：1000 身份验证失败 / 1001 Key 非法 / 1003 Token 已过期），
   // 不携带模型存在性信号，一律判定 Key 无效
-  if (raw.status === 401 || code === '1000' || code === '1001')
+  if (raw.status === 401 || code === '1000' || code === '1001' || code === '1003')
     return { ...base, cls: 'unknown', note: 'Key 无效或已过期', keyInvalid: true };
 
-  // 校准比对：与“乱名基线”形态完全一致 → 不存在
-  if (calib && base.sig === calib.sig)
+  // 校准比对：与“乱名基线”形态完全一致 → 不存在。
+  // 双保险：基线状态段为 429/5xx（校准撞上限流或平台侧错误）时不允许强制归不存在，降为 unknown
+  if (calib && base.sig === calib.sig) {
+    const bStatus = Number(String(calib.sig).split('|')[0]);
+    if (bStatus === 429 || (bStatus >= 500 && bStatus < 600))
+      return { ...base, cls: 'unknown', note: '命中基线签名，但基线本身是限流/服务端错误，不可作“不存在”依据' };
     return { ...base, cls: 'notfound', note: '与不存在基线形态一致' };
+  }
+
+  // API 级错误（1221/1222 = 模型已下线 / API 不存在）：非模型存在性信号；
+  // 置于 notfound / locked 文案匹配之前，防止「API 不存在」类文案被正则误判
+  if (code === '1221' || code === '1222')
+    return { ...base, cls: 'unknown', note: 'API 级错误（已下线/不存在），非模型存在性信号' };
+  // 平台侧错误（1234 / 5xx）：可重试，不参与存在性判定
+  if (code === '1234' || raw.status >= 500)
+    return { ...base, cls: 'unknown', note: '平台侧网络错误，可重试' };
 
   // 不存在类
   if (code === '1211' || /不存在|没有找到|找不到|not\s*found|does\s*not\s*exist|no\s*such\s*model|invalid\s*model/.test(text))
     return { ...base, cls: 'notfound' };
 
-  // 无权访问类 → 最高价值（1220 为实测确认的真实错误码：“您无权访问xxx”）
-  if (code === '1213' || code === '1220' || raw.status === 403 || /无权|权限|许可|未授权|申请开通|订阅|permission|not\s*authorized|access\s*denied|forbidden/.test(text))
+  // 无权访问类 → 最高价值（1220 实测“您无权访问xxx”；1311 = 模型存在但当前套餐未开放权限，beta 灰度判别码）
+  if (code === '1213' || code === '1220' || code === '1311' || raw.status === 403 || /无权|权限|许可|未授权|申请开通|订阅|permission|not\s*authorized|access\s*denied|forbidden/.test(text))
     return { ...base, cls: 'locked' };
 
-  // 接口不匹配类（如对向量/图像/语音模型调 chat）→ 模型存在
-  if (/不支持|暂不支持|not\s*support|unsupported|错误的接口|不适用于|仅支持|该方法/.test(text))
+  // 接口不匹配类（如对向量/图像/语音模型调 chat；1212 = 当前模型不支持该调用方式，code 直判优于文案兜底）→ 模型存在
+  if (code === '1212' || /不支持|暂不支持|not\s*support|unsupported|错误的接口|不适用于|仅支持|该方法/.test(text))
     return { ...base, cls: 'likely', note: '该名称通过了存在性校验，但不支持对话接口（多为向量/图像/语音类模型）' };
 
   // 计费/配额类：若平台在模型校验之后才计费，则说明模型存在
   if (/余额|欠费|balance|arrears|1113/.test(text))
     return { ...base, cls: 'likely', note: '报错发生在计费/配额环节；若平台先校验模型后计费，则说明模型存在（请人工复核）' };
 
-  // 限流类 → 无法判定，值得重试
-  if (raw.status === 429 || code === '1302' || /限流|频繁|rate\s*limit|too\s*many/.test(text))
+  // 限流/用量类（1302 访问量过大 / 1305 使用上限 / 1308 Coding Plan 到期 / 1309 公平使用策略 / 1313）→ 无法判定，值得重试
+  if (raw.status === 429 || ['1302', '1305', '1308', '1309', '1313'].includes(code) || /限流|频繁|rate\s*limit|too\s*many/.test(text))
     return { ...base, cls: 'unknown', note: '触发限流，建议稍后重试' };
 
-  // 参数类：模型名可能已通过校验，但顺序未知
-  if (raw.status === 400 || /参数|param|invalid\s*request|messages|上下文|context\s*length/.test(text))
+  // 参数类（1214 字段非法 / 1261 Prompt 超长，均发生在模型名校验之后）：模型名可能已通过校验，但顺序未知
+  if (raw.status === 400 || code === '1214' || code === '1261' || /参数|param|invalid\s*request|messages|上下文|context\s*length/.test(text))
     return { ...base, cls: 'likely', note: '参数校验类错误：若平台先校验模型名再校验参数，则模型存在（请人工复核）' };
 
   return { ...base, cls: 'unknown' };
@@ -260,19 +274,25 @@ $('verifyKeyBtn').onclick = async () => {
   if (!v) { setStatus($('keyStatus'), 'err', '请先输入 Key'); return; }
   setStatus($('keyStatus'), 'busy', '正在用免费模型验证…');
   try {
-    const data = await probeOnce(v, FREE_MODEL);
-    if (data.status === 200) {
-      setStatus($('keyStatus'), 'ok', `✅ Key 有效（免费模型 ${FREE_MODEL} 返回 200）`);
-      logLine(`Key 验证通过：${FREE_MODEL} → 200`);
+    let lastErr = null, okModel = '';
+    // 免费模型按序回退：上一代免费模型下线后 Key 验证不会永远报错
+    for (const m of FREE_MODELS) {
+      const data = await probeOnce(v, m);
+      if (data.status === 200) { okModel = m; break; }
+      lastErr = data;
+    }
+    if (okModel) {
+      setStatus($('keyStatus'), 'ok', `✅ Key 有效（免费模型 ${okModel} 返回 200）`);
+      logLine(`Key 验证通过：${okModel} → 200`);
     } else {
-      const body = parseBody(data.body) || {};
+      const body = parseBody(lastErr.body) || {};
       const code = body.error && body.error.code, msg = body.error && body.error.message;
-      if (data.status === 401 || code === '1000' || code === '1001') {
-        setStatus($('keyStatus'), 'err', `❌ Key 无效（HTTP ${data.status} ${code || ''} ${msg || ''}）`);
+      if (lastErr.status === 401 || code === '1000' || code === '1001') {
+        setStatus($('keyStatus'), 'err', `❌ Key 无效（HTTP ${lastErr.status} ${code || ''} ${msg || ''}）`);
       } else {
-        setStatus($('keyStatus'), 'warn', `⚠️ Key 已发出请求但返回 ${data.status}（${code || ''} ${msg || ''}）——可继续尝试嗅探`);
+        setStatus($('keyStatus'), 'warn', `⚠️ Key 已发出请求但免费模型均返回 ${lastErr.status}（${code || ''} ${msg || ''}）——可继续尝试嗅探`);
       }
-      logLine(`Key 验证：HTTP ${data.status} code=${code || '-'} msg=${msg || '-'}`);
+      logLine(`Key 验证：HTTP ${lastErr.status} code=${code || '-'} msg=${msg || '-'}`);
     }
   } catch (e) {
     setStatus($('keyStatus'), 'err', `验证请求失败：${e.message}`);
@@ -305,6 +325,28 @@ $('fetchModelsBtn').onclick = async () => {
     if (Array.isArray(list)) {
       names = list.map((m) => (typeof m === 'string' ? m : m.id || m.name || m.model)).filter(Boolean);
     }
+    // 反向 diff：官方列表出现了内置 SEED 与上次快照都没有的名字 → 词典陈旧告警。
+    // 必须在下方覆盖 LS.openList 之前计算，否则 known 集合永远包含本次结果，diff 恒为空
+    const known = new Set([
+      ...Object.values(OPEN_MODELS_SEED).flat(),
+      ...(JSON.parse(localStorage.getItem(LS.openList) || '[]')),
+    ]);
+    const fresh = names.map((n) => String(n).toLowerCase()).filter((n) => !known.has(n));
+    if (fresh.length > 0) {
+      logLine(`官方列表新增 ${fresh.length} 个内置词典未收录：${fresh.join('、')}——建议人工确认后更新 OPEN_MODELS_SEED 并从候选剔除`);
+      $('openDiffBox').classList.remove('hidden');
+      const diffChips = $('openDiffChips');
+      diffChips.innerHTML = '';
+      fresh.forEach((n) => {
+        const chip = document.createElement('span');
+        chip.className = 'chip fresh';
+        chip.textContent = n;
+        chip.title = '官方 /models 已返回该名字，但内置 OPEN_MODELS_SEED 未收录——以拉取结果为准';
+        diffChips.appendChild(chip);
+      });
+    } else {
+      $('openDiffBox').classList.add('hidden');
+    }
     openModels = new Set(names.map((n) => String(n).toLowerCase()));
     localStorage.setItem(LS.openList, JSON.stringify([...openModels]));
     $('openModelsBox').classList.remove('hidden');
@@ -335,13 +377,19 @@ $('calibrateBtn').onclick = async () => {
     const body = parseBody(data.body) || {};
     const err = body.error || {};
     const eCode = err.code != null ? String(err.code) : '';
-    // 认证类错误不能作为“模型不存在”基线，否则会把后续所有同错误形态的结果误判为不存在
-    if (data.status === 401 || eCode === '1000' || eCode === '1001') {
-      setStatus($('baselineStatus'), 'err', `❌ 无法校准：Key 无效（HTTP ${data.status} ${eCode} ${err.message || ''}），请先检查 Key`);
-      logLine(`校准中止：乱名请求返回认证错误 ${eCode}`);
+    // 认证（401/1000/1001/1003）、限流（429/1302/1305/1308/1309/1313）、网络错误（status 0）
+    // 都不能作为“模型不存在”基线，否则会把后续所有同错误形态的结果误判为不存在
+    if (
+      data.status === 401 || ['1000', '1001', '1003'].includes(eCode) ||
+      data.status === 429 || ['1302', '1305', '1308', '1309', '1313'].includes(eCode) ||
+      data.status === 0
+    ) {
+      setStatus($('baselineStatus'), 'err', `❌ 无法校准：HTTP ${data.status} ${eCode} ${err.message || ''}——认证/限流/网络类错误会污染基线，请检查 Key 或稍后重试`);
+      logLine(`校准中止：乱名请求返回 HTTP ${data.status} code=${eCode}（认证/限流/网络类错误不可作基线）`);
       return;
     }
     calib = { sig: formSignature(data.status, body), detail: `HTTP ${data.status} · code=${err.code != null ? err.code : '-'} · msg=${err.message || '-'}` };
+    localStorage.setItem(LS.calib, JSON.stringify({ sig: calib.sig, detail: calib.detail, ts: Date.now() }));
     $('calibBox').classList.remove('hidden');
     $('calibDetail').textContent = `测试乱名：${rand}\n形态签名：${calib.sig}\n原始响应：${data.body.slice(0, 300)}`;
     setStatus($('baselineStatus'), 'ok', `✅ 校准完成：形态签名 ${calib.sig}（嗅探结果将与此比对）`);
@@ -349,6 +397,70 @@ $('calibrateBtn').onclick = async () => {
   } catch (e) {
     setStatus($('baselineStatus'), 'err', `校准失败：${e.message}`);
   }
+};
+
+// ---------------- 免 Key 旁路通道 ----------------
+// ① HuggingFace zai-org 新仓库监控：HF API 对页面 Origin 返回 ACAO（实测），浏览器可直读；
+//    新开源仓库与 API 发布接近同步（GLM-5.3 系 2026-08-25 建仓），新 repo 出现即强存在性旁证
+$('hfWatchBtn').onclick = async () => {
+  setStatus($('hfStatus'), 'busy', '正在扫描 HuggingFace zai-org 新仓库…');
+  try {
+    const r = await fetch('https://huggingface.co/api/models?author=zai-org&sort=createdAt&direction=-1&limit=50');
+    if (!r.ok) {
+      setStatus($('hfStatus'), 'err', `HuggingFace API 返回 HTTP ${r.status}（接口变更或网络受限）`);
+      return;
+    }
+    const list = await r.json();
+    if (!Array.isArray(list) || list.length === 0) {
+      setStatus($('hfStatus'), 'warn', 'zai-org 名下未扫描到公开仓库');
+      return;
+    }
+    const chipsBox = $('hfModelsChips');
+    chipsBox.innerHTML = '';
+    const now = Date.now();
+    let recent = 0;
+    list.slice(0, 20).forEach((m) => {
+      const repo = String(m.id || '');
+      const created = m.createdAt ? String(m.createdAt).slice(0, 10) : '未知';
+      const pt = m.pipelineTag ? ` · ${m.pipelineTag}` : '';
+      // 仓库 id → 可试 API 调用名：GLM-5.3-Flash-BF16 → glm-5.3-flash-bf16（去掉 -bf16 即候选线索）
+      const apiName = repo.replace(/^zai-org\//, '').toLowerCase();
+      const fresh30 = Boolean(m.createdAt) && (now - Date.parse(m.createdAt) <= 30 * 24 * 3600 * 1000);
+      const chip = document.createElement('span');
+      chip.className = 'chip static' + (fresh30 ? ' fresh' : '');
+      chip.textContent = repo.replace(/^zai-org\//, '');
+      chip.title = `创建时间：${created}${pt}\n可试 API 名：${apiName}`;
+      chipsBox.appendChild(chip);
+      if (fresh30) {
+        recent++;
+        logLine(`🆕 HF 新仓库（30 天内）：${repo}（${created}）→ 可试 API 名 ${apiName}${/-bf16$/.test(apiName) ? '（去掉 -bf16 即候选线索）' : ''}，可加入自定义候选`);
+      }
+    });
+    $('hfModelsBox').classList.remove('hidden');
+    setStatus($('hfStatus'), 'ok', `✅ 扫描到 ${list.length} 个仓库（展示最近 ${Math.min(list.length, 20)} 个），近 30 天新增 ${recent} 个`);
+    logLine(`HF zai-org 扫描完成：共 ${list.length} 个仓库，近 30 天新增 ${recent} 个${recent === 0 ? '（新 repo 出现即强信号，建议定期回扫）' : ''}`);
+  } catch (e) {
+    setStatus($('hfStatus'), 'err', `扫描失败：${e.message}`);
+  }
+};
+
+// ② 文档页探测脚本导出：docs.bigmodel.cn 文档页 404/200 是免 Key 存在性信号，
+//    但浏览器直连被 CORS 拦截（实测 200/404 页均不返回 ACAO），故导出本机 curl 脚本保真执行；
+//    不经 r.jina.ai 中转（实测限流返回 401、SPA 壳返回 200，信号失真）
+$('exportDocsProbeBtn').onclick = () => {
+  const names = getCandidates();
+  if (!names.length) { alert('候选名单为空：请先勾选内置词典或添加自定义/生成候选'); return; }
+  const header =
+    '#!/usr/bin/env bash\n' +
+    '# 智谱文档页探测脚本（由嗅探站导出，在本机运行，免 API Key）\n' +
+    '# 原理：HTTP 200=文档页已上线（新模型页先于/伴随 API 发布），404=无页面；\n' +
+    '#       另可 diff https://docs.bigmodel.cn/llms.txt 捕捉全站新页。\n' +
+    '# 用法：bash probe-docs.sh\n';
+  const lines = names.map((n) =>
+    `printf '%-28s text:%s vlm:%s\\n' ${n} \\\n` +
+    `  "$(curl -s -o /dev/null -w '%{http_code}' https://docs.bigmodel.cn/cn/guide/models/text/${n}.md)" "$(curl -s -o /dev/null -w '%{http_code}' https://docs.bigmodel.cn/cn/guide/models/vlm/${n}.md)"`);
+  download(new Blob([header + lines.join('\n') + '\n'], { type: 'text/x-shellscript' }), 'probe-docs.sh');
+  logLine(`已导出文档页探测脚本 probe-docs.sh（覆盖 ${names.length} 个候选 × text/vlm 两类页面，本机 bash 运行）`);
 };
 
 // ---------------- 嗅探引擎 ----------------
@@ -578,7 +690,7 @@ function renderGenSuffixes() {
   GEN_SUFFIX_OPTIONS.forEach((s) => {
     const chip = document.createElement('button');
     chip.type = 'button';
-    chip.className = 'chip' + (s === '' || s === '-flash' || s === '-air' ? ' on' : '');
+    chip.className = 'chip' + (s === '' || s === '-flash' || s === '-air' || s === '-preview' ? ' on' : '');
     chip.textContent = s === '' ? '（无后缀）' : s;
     chip.onclick = () => chip.classList.toggle('on');
     chip.dataset.suffix = s;
@@ -688,6 +800,19 @@ async function init() {
       chipsBox.appendChild(chip);
     });
     setStatus($('baselineStatus'), 'ok', `已载入历史拉取的 ${openModels.size} 个官方模型`);
+  }
+  // 恢复历史校准基线（持久化，刷新不丢）；超过 24 小时提示重新校准
+  const savedCalib = JSON.parse(localStorage.getItem(LS.calib) || 'null');
+  if (savedCalib && savedCalib.sig) {
+    calib = savedCalib;
+    $('calibBox').classList.remove('hidden');
+    $('calibDetail').textContent =
+      `（${savedCalib.ts ? new Date(savedCalib.ts).toLocaleString() : '时间未知'} 校准，持久化恢复）\n形态签名：${savedCalib.sig}\n详情：${savedCalib.detail || '-'}`;
+    if (savedCalib.ts && Date.now() - savedCalib.ts > 24 * 60 * 60 * 1000) {
+      logLine('基线已过期（超过 24 小时），建议重新校准');
+    } else {
+      logLine(`已载入历史校准基线：${savedCalib.sig}`);
+    }
   }
   logLine('页面就绪。建议流程：保存 Key → 拉取官方列表 → 校准 → 开始嗅探');
 }

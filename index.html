@@ -53,6 +53,19 @@
         <button id="calibrateBtn" class="btn">错误形态校准</button>
       </div>
       <div id="baselineStatus" class="status-line" data-state="idle">尚未拉取</div>
+      <div class="row-btns">
+        <button id="hfWatchBtn" class="btn ghost">扫描 zai-org 新开源仓库（免 Key）</button>
+        <button id="exportDocsProbeBtn" class="btn ghost">导出文档页探测脚本（免 Key）</button>
+      </div>
+      <div id="hfStatus" class="status-line" data-state="idle">免 Key 旁路：HF 仓库扫描（浏览器直读）· 文档页探测（本机 curl 脚本）</div>
+      <div id="hfModelsBox" class="chips-box hidden">
+        <div class="chips-title">HuggingFace zai-org 最近仓库（悬停看创建时间与可试 API 名，橙色 = 30 天内新增）</div>
+        <div id="hfModelsChips" class="chips"></div>
+      </div>
+      <div id="openDiffBox" class="chips-box hidden">
+        <div class="chips-title">⚠️ 官方列表新增、内置词典未收录（以拉取结果为准，建议更新 OPEN_MODELS_SEED）</div>
+        <div id="openDiffChips" class="chips"></div>
+      </div>
       <div id="openModelsBox" class="chips-box hidden">
         <div class="chips-title">官方列表中的已开放模型（<span id="openModelsCount">0</span>）</div>
         <div id="openModelsChips" class="chips"></div>
