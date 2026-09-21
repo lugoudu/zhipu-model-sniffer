@@ -127,6 +127,8 @@ label { color: var(--dim); font-size: 13px; }
 .chip:hover { border-color: var(--accent); color: var(--text); }
 .chip.on { background: rgba(79, 140, 255, 0.14); border-color: var(--accent); color: #cfe0ff; }
 .chip.static { cursor: default; background: rgba(62, 207, 142, 0.10); border-color: rgba(62, 207, 142, 0.4); color: #b9ecd6; }
+/* 醒目 chip：官方列表新增 / HF 30 天内新仓库等需要人工关注的名字 */
+.chip.fresh { background: rgba(245, 185, 80, 0.13); border-color: rgba(245, 185, 80, 0.55); color: #ffd9a0; }
 .chips-box { margin-top: 10px; max-height: 180px; overflow: auto; }
 .chips-title { font-size: 12.5px; color: var(--text); font-weight: 600; margin: 8px 0 4px; }
 

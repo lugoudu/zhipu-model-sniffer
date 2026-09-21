@@ -28,7 +28,7 @@
 
 仓库采用**双分支**结构：
 
-- `main`：源码分支（`public/` 为站点源文件，`README.md`、`server.js` 等仅存于此）
+- `main`：源码分支（`public/` 为站点源文件，`README.md`、`docs/` 等仅存于此）
 - `gh-pages`：部署分支（站点根，内容 = `public/` 平铺 + `.nojekyll`），GitHub Pages 从该分支构建
 
 > 之所以不用 GitHub Actions 工作流：推送 `.github/workflows/` 需要 token 具备 `workflow` scope，当前 gh CLI token（gist, read:org, repo）不具备。工作流样本保留在 `docs/deploy.yml.sample`，若将来想改为 Actions 自动部署，把它移回 `.github/workflows/deploy.yml` 并在 Settings → Pages 把 Source 切到 GitHub Actions 即可。
@@ -46,6 +46,8 @@ cp public/* . && git add -A && git commit -m "deploy: update site" && git push
 git checkout main
 ```
 
+> ⚠️ 凡改动 `public/candidates.js` / `public/app.js`，必须完整执行上方 gh-pages 同步命令，README 中的候选计数随改随更（以 `public/candidates.js` 实际计数为准）。
+
 **从零复现部署**（新机器 / 新仓库）：
 
 ```bash
@@ -58,9 +60,10 @@ cp -r public/* . && touch .nojekyll && git add -A && git commit -m "deploy" && g
 
 ## 功能
 
-- **API Key 管理**：输入、保存（浏览器 localStorage）、显示/隐藏、免费模型验证、一键清除；嗅探请求由用户浏览器直连智谱，本站（以及任何托管方）不经手 Key
-- **对照基线**：拉取官方 `/models` 列表得到「已开放」名单（嗅探时可跳过）；乱名校准「不存在」基线
-- **候选策略（2026-09 调整）**：glm 主线版本号 **≤ 5.2 的候选全部剔除**（旧模型无嗅探价值，专用线编号独立不受此限）；新增 **Preview 内测代号组**——`glm-x-preview-{a..z}` 共 26 个（`x` 为字面代号），按字母序依次探测，用于捕捉发布前的内测别名；其余为下一代版本 / 5.3 后缀家族 / 多模态镜像等按命名规律外推的候选（可用生成器按「版本 × 变体」自行构造）
+- **API Key 管理**：输入、保存（浏览器 localStorage）、显示/隐藏、免费模型验证（`FREE_MODELS` 按序回退，旧免费模型下线后不会永远报错）、一键清除；嗅探请求由用户浏览器直连智谱，本站（以及任何托管方）不经手 Key
+- **对照基线**：拉取官方 `/models` 列表得到「已开放」名单（嗅探时可跳过；若官方列表出现内置词典未收录的新名字，会以提示条 + 日志反向 diff 告警——以拉取结果为准，SEED 仅是快照）；乱名校准「不存在」基线（校准撞上认证/限流/网络错误会被拒绝，防基线污染；基线持久化保存，超过 24 小时提示重新校准）
+- **候选策略（2026-09 重建）**：glm 主线版本号 **≤ 5.2 的候选全部剔除**（旧模型无嗅探价值，专用线编号独立不受此限）；Preview 内测代号组改用**情报实锤的官方预发布形态 `glm-<版本>-preview`**（6 个，其中两个 `*-flash-preview` 为组合推测）——原字母扫描组 `glm-x-preview-{a..z}`（26 个，零证据）已删除；版本号外推补齐 flashx / turbo 档位；vidu 视频线改用官方定价页实锤调用名（`viduq1-*` / `vidu2-*`），并沿直进位规律外推 `vidu3-*`；其余为 5.3 后缀家族 / 多模态镜像等按命名规律外推的候选（生成器后缀含 `-preview` / `-long` / `-x` / `-thinking-flash` 等实锤形态，可按「版本 × 变体」自行构造）
+- **免 Key 旁路通道**：① **扫描 zai-org 新开源仓库**——HuggingFace API 对页面 Origin 开放 CORS（实测），浏览器直读最近 50 个仓库，近 30 天新增的名字高亮并给出「仓库名 → 可试 API 名」提示（如 `GLM-5.3-Flash-BF16 → glm-5.3-flash-bf16`）；② **导出文档页探测脚本**——docs.bigmodel.cn 的文档页 404/200 是免 Key 存在性信号，但浏览器直连被 CORS 拦截（实测），一键导出本机 curl 脚本逐候选探测 text / vlm 两类页面
 - **嗅探引擎**：可调并发（1–4）与间隔（200ms–2s）、进度条、限流自动重试、Key 失效自动停止
 - **结果面板**：六类统计、分类过滤、请求日志、JSON / CSV 导出、localStorage 持久化
 
@@ -74,18 +77,16 @@ python3 -m http.server 8787 --directory public
 # 打开 http://localhost:8787
 ```
 
-> 仓库根目录还保留了早期的 `server.js`（本地代理版）。CORS 实测确认智谱已开放浏览器直连后，它已非必需，仅作为不想直连时的备选：`node server.js` 后访问其 8787 端口（注意它托管的是当时的直连前版本，如需使用请自行回退 `public/app.js` 中的直连逻辑）。
-
 ## 使用流程
 
 1. **① API Key**：粘贴 [智谱开放平台](https://www.bigmodel.cn/apikey/platform) 的 Key → 保存 → 点「验证有效性」（用免费模型零成本确认）
-2. **② 对照基线**：拉取官方模型列表 → 错误形态校准（强烈建议）
+2. **② 对照基线**：拉取官方模型列表（以拉取结果为准，SEED 仅是快照）→ 错误形态校准（强烈建议，基线持久化 24 小时）；没有 Key 时可用「扫描 zai-org 新开源仓库」与「导出文档页探测脚本」两条免 Key 旁路
 3. **③ 候选名单**：勾选内置词典 / 添加自定义 / 用生成器批量构造
 4. **④ 开始嗅探**：选并发与间隔 → 启动；关注 🔥「存在·无权」与 ⚡「疑似存在」
 
 ## 成本与安全
 
-- 嗅探请求 `max_tokens=1` 且内容仅 `hi`：免费模型零成本；付费模型每次至多 1 个输出 token（约 74 个候选 < 0.01 元级别）
+- 嗅探请求 `max_tokens=1` 且内容仅 `hi`：免费模型零成本；付费模型每次至多 1 个输出 token（候选总量以 `public/candidates.js` 实际计数为准，2026-09 重建后 64 个，单轮 < 0.01 元级别）
 - 请求从每个访客自己的浏览器、自己的 IP、自己的 Key 发出，来源天然分散；前端默认并发 2、间隔 500ms，请勿调高后高频滥用
 - Key 只存于访客自己的浏览器 localStorage；纯静态架构下不存在服务器中转环节
 - 仅供学习研究，结果为概率性推断，以智谱官方发布为准
@@ -97,10 +98,9 @@ zhipu-model-sniffer/
 ├── public/                       # 站点源文件（main 分支）
 │   ├── index.html                # 单页布局
 │   ├── app.js                    # 嗅探引擎 + 自适应分类器 + 直连智谱逻辑
-│   ├── candidates.js             # 内置候选词典（74 个）+ 生成器选项
+│   ├── candidates.js             # 内置候选词典（以实际计数为准，2026-09 重建后 64 个）+ 生成器选项
 │   └── style.css                 # 深色主题样式
 ├── docs/deploy.yml.sample        # （可选）Actions 自动部署工作流样本
-├── server.js                     # （遗留，可选）早期本地代理版
 ├── README.md
 └── gh-pages 分支                  # 部署内容 = public/ 平铺 + .nojekyll
 ```
