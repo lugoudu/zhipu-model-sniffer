@@ -4,10 +4,8 @@
  *   对每个候选模型名发送一次 max_tokens=1 的 chat 请求，根据响应差异分类：
  *   - HTTP 200                    → 已开放可用
  *   - “模型不存在”类错误          → 名字不存在
- *   - “无权访问 / 需申请”类错误    → 🔥 模型存在但未对你开放（疑似即将发布或内测）
- *   - “不支持该接口 / 计费 / 参数”类错误 → 大概率存在（模型名校验已通过）
- *   分类器自适应：开始嗅探前先用随机乱名做“不存在基线校准”，
- *   任何结果若与基线形态完全一致则强制归为不存在，避免误报。
+ *   - 无权限、计费、限流分别展示，不据此预测发布时间。
+ *   - 乱名必须明确返回 1211 才可用作不存在基线。
  */
 
 (() => {
@@ -20,16 +18,18 @@ const $ = (id) => document.getElementById(id);
 const LS = {
   key: 'zp_probe_apikey',
   custom: 'zp_probe_custom',
-  builtinSel: 'zp_probe_builtin_sel_v4', // v4：preview 组改为实锤形态 glm-<版本>-preview，重置默认勾选
+  builtinSel: 'zp_probe_builtin_sel_v5', // v5：保留版本预览组并恢复用户实测的字面代号组
   results: 'zp_probe_results',
   openList: 'zp_probe_openlist',
-  calib: 'zp_probe_calib', // 校准基线持久化（超过 24h 过期并提示重新校准）
+  openListTag: 'zp_probe_openlist_keytag',
+  calib: 'zp_probe_calib',
 };
 
 const CLS_META = {
   open:     { label: '可用',     desc: '返回 200，模型对当前 Key 完全开放' },
-  locked:   { label: '存在·无权', desc: '模型名通过了存在性校验但被拒访问——典型信号：新模型内测中或即将发布' },
-  likely:   { label: '疑似存在', desc: '报错类型出现在模型校验之后（接口不匹配/计费/参数），大概率存在' },
+  locked:   { label: '无权访问', desc: '当前 Key 被拒访问；无法推断发布时间' },
+  billing:  { label: '计费受阻', desc: '余额或资源资格检查未通过；应与已开放的付费模型对照' },
+  likely:   { label: '待复核', desc: '接口不匹配信号，尚需同载荷乱名对照' },
   notfound: { label: '不存在',   desc: '与“模型不存在”基线形态一致' },
   unknown:  { label: '无法判定', desc: '限流、网络或其他未识别错误，可重试' },
 };
@@ -41,6 +41,7 @@ const ICONS = {
   open:     svgWrap('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'),
   locked:   svgWrap('<rect x="3" y="11" width="18" height="11" rx="2.5"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'),
   likely:   svgWrap('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>'),
+  billing:  svgWrap('<circle cx="12" cy="12" r="10"/><path d="M12 6v12M16 9c-1-1-7-1-7 2s7 1 7 4-6 3-8 1"/>'),
   notfound: svgWrap('<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'),
   unknown:  svgWrap('<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>'),
   total:    svgWrap('<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>'),
@@ -55,6 +56,9 @@ let builtinSelected = JSON.parse(localStorage.getItem(LS.builtinSel) || 'null');
 let results = JSON.parse(localStorage.getItem(LS.results) || '{}');
 let openModels = new Set(JSON.parse(localStorage.getItem(LS.openList) || '[]'));
 let calib = null; // { sig, detail }
+let billingControl = null;
+let billingControlKey = '';
+let activeKeyTag = '';
 
 let running = false;
 let shouldStop = false;
@@ -85,74 +89,26 @@ function parseBody(text) {
   try { return JSON.parse(text); } catch { return null; }
 }
 
-function formSignature(status, body) {
-  const err = body && body.error;
-  const code = err && err.code != null ? String(err.code) : '';
-  return `${status}|${code}`;
+// The pure classifier lives in probe-logic.js so recorded responses can be tested offline.
+const classify = (model, raw, calibration) => ProbeLogic.classify(model, raw, calibration);
+
+async function keyTag(key) {
+  const bytes = new TextEncoder().encode(key);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].slice(0, 8).map((n) => n.toString(16).padStart(2, '0')).join('');
 }
 
-// ---------------- 分类器 ----------------
-function classify(model, raw) {
-  const body = parseBody(raw.body);
-  const err = (body && body.error) || {};
-  const code = err.code != null ? String(err.code) : '';
-  const msg = err.message ? String(err.message) : '';
-  const text = `${code} ${msg}`.toLowerCase();
-
-  const base = { model, status: raw.status, code, msg, latencyMs: raw.latencyMs, ts: Date.now(), sig: formSignature(raw.status, body) };
-
-  if (raw.status === 200) return { ...base, cls: 'open' };
-
-  if (raw.status === 0 || code === 'network')
-    return { ...base, cls: 'unknown', note: '网络错误或超时' };
-
-  // 任何 401 都是认证问题（实测有多种文案：1000 身份验证失败 / 1001 Key 非法 / 1003 Token 已过期），
-  // 不携带模型存在性信号，一律判定 Key 无效
-  if (raw.status === 401 || code === '1000' || code === '1001' || code === '1003')
-    return { ...base, cls: 'unknown', note: 'Key 无效或已过期', keyInvalid: true };
-
-  // 校准比对：与“乱名基线”形态完全一致 → 不存在。
-  // 双保险：基线状态段为 429/5xx（校准撞上限流或平台侧错误）时不允许强制归不存在，降为 unknown
-  if (calib && base.sig === calib.sig) {
-    const bStatus = Number(String(calib.sig).split('|')[0]);
-    if (bStatus === 429 || (bStatus >= 500 && bStatus < 600))
-      return { ...base, cls: 'unknown', note: '命中基线签名，但基线本身是限流/服务端错误，不可作“不存在”依据' };
-    return { ...base, cls: 'notfound', note: '与不存在基线形态一致' };
-  }
-
-  // API 级错误（1221/1222 = 模型已下线 / API 不存在）：非模型存在性信号；
-  // 置于 notfound / locked 文案匹配之前，防止「API 不存在」类文案被正则误判
-  if (code === '1221' || code === '1222')
-    return { ...base, cls: 'unknown', note: 'API 级错误（已下线/不存在），非模型存在性信号' };
-  // 平台侧错误（1234 / 5xx）：可重试，不参与存在性判定
-  if (code === '1234' || raw.status >= 500)
-    return { ...base, cls: 'unknown', note: '平台侧网络错误，可重试' };
-
-  // 不存在类
-  if (code === '1211' || /不存在|没有找到|找不到|not\s*found|does\s*not\s*exist|no\s*such\s*model|invalid\s*model/.test(text))
-    return { ...base, cls: 'notfound' };
-
-  // 无权访问类 → 最高价值（1220 实测“您无权访问xxx”；1311 = 模型存在但当前套餐未开放权限，beta 灰度判别码）
-  if (code === '1213' || code === '1220' || code === '1311' || raw.status === 403 || /无权|权限|许可|未授权|申请开通|订阅|permission|not\s*authorized|access\s*denied|forbidden/.test(text))
-    return { ...base, cls: 'locked' };
-
-  // 接口不匹配类（如对向量/图像/语音模型调 chat；1212 = 当前模型不支持该调用方式，code 直判优于文案兜底）→ 模型存在
-  if (code === '1212' || /不支持|暂不支持|not\s*support|unsupported|错误的接口|不适用于|仅支持|该方法/.test(text))
-    return { ...base, cls: 'likely', note: '该名称通过了存在性校验，但不支持对话接口（多为向量/图像/语音类模型）' };
-
-  // 计费/配额类：若平台在模型校验之后才计费，则说明模型存在
-  if (/余额|欠费|balance|arrears|1113/.test(text))
-    return { ...base, cls: 'likely', note: '报错发生在计费/配额环节；若平台先校验模型后计费，则说明模型存在（请人工复核）' };
-
-  // 限流/用量类（1302 访问量过大 / 1305 使用上限 / 1308 Coding Plan 到期 / 1309 公平使用策略 / 1313）→ 无法判定，值得重试
-  if (raw.status === 429 || ['1302', '1305', '1308', '1309', '1313'].includes(code) || /限流|频繁|rate\s*limit|too\s*many/.test(text))
-    return { ...base, cls: 'unknown', note: '触发限流，建议稍后重试' };
-
-  // 参数类（1214 字段非法 / 1261 Prompt 超长，均发生在模型名校验之后）：模型名可能已通过校验，但顺序未知
-  if (raw.status === 400 || code === '1214' || code === '1261' || /参数|param|invalid\s*request|messages|上下文|context\s*length/.test(text))
-    return { ...base, cls: 'likely', note: '参数校验类错误：若平台先校验模型名再校验参数，则模型存在（请人工复核）' };
-
-  return { ...base, cls: 'unknown' };
+function resetControls() {
+  calib = null;
+  billingControl = null;
+  billingControlKey = '';
+  $('calibBox').classList.add('hidden');
+  openModels = new Set();
+  localStorage.removeItem(LS.openList);
+  localStorage.removeItem(LS.openListTag);
+  localStorage.removeItem(LS.calib);
+  $('openModelsBox').classList.add('hidden');
+  setStatus($('billingStatus'), 'idle', '尚未校准');
 }
 
 // ---------------- 候选名单 ----------------
@@ -248,13 +204,17 @@ function maskKey(k) {
   return k.slice(0, 4) + '****' + k.slice(-4);
 }
 
-$('saveKeyBtn').onclick = () => {
+$('saveKeyBtn').onclick = async () => {
   const v = $('apiKeyInput').value.trim();
   if (!v) { setStatus($('keyStatus'), 'err', '请先粘贴 Key'); return; }
+  if (v !== apiKey) resetControls();
   apiKey = v;
+  activeKeyTag = await keyTag(v);
   localStorage.setItem(LS.key, v);
   setStatus($('keyStatus'), 'ok', `已保存（${maskKey(v)}），仅存于本浏览器`);
   logLine(`API Key 已保存（${maskKey(v)}）`);
+  renderStats();
+  renderResults();
 };
 
 $('toggleKeyBtn').onclick = () => {
@@ -264,9 +224,13 @@ $('toggleKeyBtn').onclick = () => {
 
 $('clearKeyBtn').onclick = () => {
   apiKey = '';
+  activeKeyTag = '';
+  resetControls();
   localStorage.removeItem(LS.key);
   $('apiKeyInput').value = '';
   setStatus($('keyStatus'), 'idle', '已清除');
+  renderStats();
+  renderResults();
 };
 
 $('verifyKeyBtn').onclick = async () => {
@@ -349,6 +313,7 @@ $('fetchModelsBtn').onclick = async () => {
     }
     openModels = new Set(names.map((n) => String(n).toLowerCase()));
     localStorage.setItem(LS.openList, JSON.stringify([...openModels]));
+    localStorage.setItem(LS.openListTag, await keyTag(v));
     $('openModelsBox').classList.remove('hidden');
     $('openModelsCount').textContent = openModels.size;
     const chipsBox = $('openModelsChips');
@@ -359,44 +324,59 @@ $('fetchModelsBtn').onclick = async () => {
       chip.textContent = n;
       chipsBox.appendChild(chip);
     });
-    setStatus($('baselineStatus'), 'ok', `✅ 已拉取 ${openModels.size} 个官方模型（作为已开放对照）`);
+    setStatus($('baselineStatus'), 'ok', `✅ 列表返回 ${openModels.size} 个模型；不代表它们均可调用`);
     logLine(`官方模型列表：${openModels.size} 个`);
   } catch (e) {
     setStatus($('baselineStatus'), 'err', `拉取失败：${e.message}`);
   }
 };
 
-// ---------------- 校准 ----------------
-$('calibrateBtn').onclick = async () => {
-  const v = $('apiKeyInput').value.trim() || apiKey;
-  if (!v) { setStatus($('baselineStatus'), 'err', '请先输入并保存 Key'); return; }
+// ---------------- 对照校准 ----------------
+async function calibrate(v) {
   setStatus($('baselineStatus'), 'busy', '校准中：发送随机乱名…');
   const rand = 'probe-nonexist-' + Math.random().toString(36).slice(2, 10);
   try {
     const data = await probeOnce(v, rand);
-    const body = parseBody(data.body) || {};
-    const err = body.error || {};
-    const eCode = err.code != null ? String(err.code) : '';
-    // 认证（401/1000/1001/1003）、限流（429/1302/1305/1308/1309/1313）、网络错误（status 0）
-    // 都不能作为“模型不存在”基线，否则会把后续所有同错误形态的结果误判为不存在
-    if (
-      data.status === 401 || ['1000', '1001', '1003'].includes(eCode) ||
-      data.status === 429 || ['1302', '1305', '1308', '1309', '1313'].includes(eCode) ||
-      data.status === 0
-    ) {
-      setStatus($('baselineStatus'), 'err', `❌ 无法校准：HTTP ${data.status} ${eCode} ${err.message || ''}——认证/限流/网络类错误会污染基线，请检查 Key 或稍后重试`);
-      logLine(`校准中止：乱名请求返回 HTTP ${data.status} code=${eCode}（认证/限流/网络类错误不可作基线）`);
-      return;
+    const err = ProbeLogic.errorOf(data);
+    if (!ProbeLogic.isMissing(data) || err.code !== '1211') {
+      calib = null;
+      localStorage.removeItem(LS.calib);
+      $('calibBox').classList.add('hidden');
+      setStatus($('baselineStatus'), 'err', `校准失败：乱名得到 HTTP ${data.status} / ${err.code || '-'}；只有 1211 才能作不存在基线`);
+      logLine(`校准拒绝：${rand} → HTTP ${data.status} code=${err.code || '-'} ${err.message}`);
+      return false;
     }
-    calib = { sig: formSignature(data.status, body), detail: `HTTP ${data.status} · code=${err.code != null ? err.code : '-'} · msg=${err.message || '-'}` };
-    localStorage.setItem(LS.calib, JSON.stringify({ sig: calib.sig, detail: calib.detail, ts: Date.now() }));
+    calib = { valid: true, sig: ProbeLogic.signature(data), model: rand, ts: Date.now(), detail: `HTTP ${data.status} · code=${err.code} · msg=${err.message}` };
+    localStorage.setItem(LS.calib, JSON.stringify({ ...calib, keyTag: await keyTag(v) }));
     $('calibBox').classList.remove('hidden');
     $('calibDetail').textContent = `测试乱名：${rand}\n形态签名：${calib.sig}\n原始响应：${data.body.slice(0, 300)}`;
     setStatus($('baselineStatus'), 'ok', `✅ 校准完成：形态签名 ${calib.sig}（嗅探结果将与此比对）`);
     logLine(`校准完成：乱名 ${rand} → ${calib.detail}`);
+    return true;
   } catch (e) {
     setStatus($('baselineStatus'), 'err', `校准失败：${e.message}`);
+    return false;
   }
+};
+
+$('calibrateBtn').onclick = async () => {
+  const v = $('apiKeyInput').value.trim() || apiKey;
+  if (!v) { setStatus($('baselineStatus'), 'err', '请先输入 Key'); return; }
+  await calibrate(v);
+};
+
+$('billingBtn').onclick = async () => {
+  const v = $('apiKeyInput').value.trim() || apiKey;
+  if (!v) { setStatus($('billingStatus'), 'err', '请先输入 Key'); return; }
+  setStatus($('billingStatus'), 'busy', '正在用已开放的付费模型 glm-5.3 检查该 Key 的支付能力…');
+  const raw = await probeOnce(v, 'glm-5.3');
+  const err = ProbeLogic.errorOf(raw);
+  billingControl = { model: 'glm-5.3', status: raw.status, code: err.code, msg: err.message, ts: Date.now() };
+  billingControlKey = v;
+  const state = raw.status === 200 ? 'ok' : ProbeLogic.isBilling(raw) ? 'warn' : 'err';
+  const meaning = raw.status === 200 ? '可支付本次对照请求' : ProbeLogic.isBilling(raw) ? '计费或资源资格受阻' : '无法判定支付能力';
+  setStatus($('billingStatus'), state, `${meaning} · HTTP ${raw.status} / ${err.code || '-'}`);
+  logLine(`计费对照 glm-5.3 → HTTP ${raw.status} code=${err.code || '-'} ${err.message}`);
 };
 
 // ---------------- 免 Key 旁路通道 ----------------
@@ -466,13 +446,13 @@ $('exportDocsProbeBtn').onclick = () => {
 // ---------------- 嗅探引擎 ----------------
 /* 直连智谱：max_tokens=1 最小化消耗。返回与旧代理版一致的 {status, body, latencyMs} 形态，
  * classify() 无需感知差异；网络异常归一化为 status 0。 */
-async function probeOnce(key, model) {
+async function probeOnce(key, model, messages = [{ role: 'user', content: 'hi' }]) {
   const started = Date.now();
   try {
     const r = await fetch(`${ZHIPU_BASE}/chat/completions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model, messages: [{ role: 'user', content: 'hi' }], max_tokens: 1, stream: false }),
+      body: JSON.stringify({ model, messages, max_tokens: 1, stream: false }),
     });
     return { status: r.status, body: await r.text(), latencyMs: Date.now() - started };
   } catch (e) {
@@ -488,22 +468,34 @@ $('startBtn').onclick = async () => {
   if (running) return;
   const key = $('apiKeyInput').value.trim() || apiKey;
   if (!key) { alert('请先在第①步输入并保存 API Key'); return; }
+  const fingerprint = await keyTag(key);
+  activeKeyTag = fingerprint;
+  renderStats();
+  renderResults();
   let candidates = getCandidates();
   if (candidates.length === 0) { alert('候选名单为空：请至少勾选内置词典里的名字，或添加自定义/生成候选'); return; }
-  if ($('skipOpen').checked && openModels.size > 0) {
+  if ($('skipOpen').checked && openModels.size > 0 && localStorage.getItem(LS.openListTag) === fingerprint) {
     const before = candidates.length;
     candidates = candidates.filter((n) => !openModels.has(n));
     const skipped = before - candidates.length;
-    if (skipped > 0) logLine(`已跳过 ${skipped} 个官方列表中已开放的模型`);
-  }
-  if (!calib) {
-    logLine('提示：未做“错误形态校准”，将按内置规则分类（建议先点校准）');
+    if (skipped > 0) logLine(`已跳过 ${skipped} 个官方列表返回的名称`);
   }
   running = true;
   shouldStop = false;
   $('startBtn').disabled = true;
   $('stopBtn').disabled = false;
   $('progressWrap').classList.remove('hidden');
+
+  const ok = await calibrate(key);
+  if (!ok) {
+    running = false;
+    $('startBtn').disabled = false;
+    $('stopBtn').disabled = true;
+    logLine('已停止：不存在基线尚未验证，避免把账号或网络错误误判为模型信号');
+    return;
+  }
+  const runCalibration = { ...calib };
+  const billingSnapshot = billingControlKey === key && billingControl && Date.now() - billingControl.ts < 10 * 60 * 1000 ? billingControl : null;
 
   const total = candidates.length;
   let done = 0;
@@ -517,21 +509,37 @@ $('startBtn').onclick = async () => {
       if (!model) break;
       try {
         let raw = await probeOnce(key, model);
-        // 限流/网络错误自动重试一次
-        if ((raw.status === 429 || raw.status === 0) && !shouldStop) {
+        // 1113 也可能使用 HTTP 429；它是计费错误，不能当限流重试。
+        if (ProbeLogic.shouldRetry(raw) && !shouldStop) {
           await sleep(1500);
           raw = await probeOnce(key, model);
         }
-        const item = classify(model, raw);
+        const item = classify(model, raw, runCalibration);
+        item.keyTag = fingerprint;
+        item.endpoint = `${ZHIPU_BASE}/chat/completions`;
+        item.payload = 'hi / max_tokens:1 / stream:false';
+        item.calibration = { sig: runCalibration.sig, ts: runCalibration.ts };
+        if (billingSnapshot) item.billingControl = billingSnapshot;
+        const recordKey = `${fingerprint}|${model}`;
+        item.recordKey = recordKey;
+        const prev = results[recordKey];
+        const comparable = prev && prev.keyTag === fingerprint && prev.endpoint === item.endpoint && prev.payload === item.payload;
+        item.history = comparable ? [...(prev.history || []), {
+          cls: prev.cls, status: prev.status, code: prev.code, ts: prev.ts, rawBody: prev.rawBody,
+        }].slice(-10) : [];
+        if (comparable && (prev.cls !== item.cls || prev.code !== item.code || prev.status !== item.status)) {
+          item.change = `${prev.status}/${prev.code || '-'} → ${item.status}/${item.code || '-'}`;
+          logLine(`状态变化 ${model}：${item.change}（同一 Key 指纹与请求配置）`);
+        }
         if (item.keyInvalid) {
           shouldStop = true;
           setStatus($('keyStatus'), 'err', '❌ Key 无效（身份验证失败），嗅探已停止');
           logLine(`Key 无效，终止全部嗅探：${model} → ${item.code} ${item.msg}`);
         }
-        results[model] = item;
+        results[recordKey] = item;
         logLine(`${model} → HTTP ${item.status} code=${item.code || '-'} [${CLS_META[item.cls].label}] ${item.msg || item.note || ''} ${item.latencyMs}ms`);
       } catch (e) {
-        results[model] = { model, cls: 'unknown', status: -1, code: '', msg: String(e.message || e), latencyMs: 0, ts: Date.now(), sig: '' };
+        results[`${fingerprint}|${model}`] = { model, keyTag: fingerprint, recordKey: `${fingerprint}|${model}`, cls: 'unknown', status: -1, code: '', msg: String(e.message || e), latencyMs: 0, ts: Date.now(), sig: '' };
         logLine(`${model} → 请求异常：${e.message}`);
       }
       done++;
@@ -553,8 +561,8 @@ $('startBtn').onclick = async () => {
     running = false;
     $('startBtn').disabled = false;
     $('stopBtn').disabled = true;
-    const found = Object.values(results).filter((r) => r.cls === 'locked').length;
-    logLine(`嗅探结束：本次共处理 ${done} 个，🔥存在·无权 ${found} 个`);
+    const found = visibleResults().filter((r) => r.cls === 'locked').length;
+    logLine(`嗅探结束：本次共处理 ${done} 个，无权访问 ${found} 个`);
   }
 };
 
@@ -564,22 +572,27 @@ $('stopBtn').onclick = () => {
 };
 
 // ---------------- 结果渲染 ----------------
+function visibleResults() {
+  return activeKeyTag ? Object.values(results).filter((r) => r.keyTag === activeKeyTag) : [];
+}
+
 function renderStats() {
-  const c = { open: 0, locked: 0, likely: 0, notfound: 0, unknown: 0 };
-  Object.values(results).forEach((r) => { if (c[r.cls] != null) c[r.cls]++; });
+  const c = { open: 0, locked: 0, billing: 0, likely: 0, notfound: 0, unknown: 0 };
+  visibleResults().forEach((r) => { if (c[r.cls] != null) c[r.cls]++; });
   $('statOpen').textContent = c.open;
   $('statLocked').textContent = c.locked;
+  $('statBilling').textContent = c.billing;
   $('statLikely').textContent = c.likely;
   $('statNotFound').textContent = c.notfound;
   $('statUnknown').textContent = c.unknown;
-  $('statTotal').textContent = Object.keys(results).length;
+  $('statTotal').textContent = visibleResults().length;
 }
 
-const ORDER = { locked: 0, likely: 1, open: 2, unknown: 3, notfound: 4 };
+const ORDER = { locked: 0, billing: 1, likely: 2, open: 3, unknown: 4, notfound: 5 };
 
 function renderResults() {
   const box = $('resultList');
-  const items = Object.values(results)
+  const items = visibleResults()
     .filter((r) => currentFilter === 'all' || r.cls === currentFilter)
     .sort((a, b) => (ORDER[a.cls] - ORDER[b.cls]) || a.model.localeCompare(b.model));
   box.innerHTML = '';
@@ -619,13 +632,6 @@ function renderResults() {
     badge.className = `badge b-${r.cls}`;
     badge.textContent = meta.label;
     head.appendChild(badge);
-    if (r.cls === 'locked') {
-      const hot = document.createElement('span');
-      hot.className = 'hot-tag';
-      hot.title = '模型已存在但未对你开放——通常意味着内测中或即将发布';
-      hot.innerHTML = `${ICONS.sparkle}<i>疑似内测中</i>`;
-      head.appendChild(hot);
-    }
     body.appendChild(head);
 
     const chips = document.createElement('div');
@@ -640,6 +646,52 @@ function renderResults() {
     msg.className = 'r-msg';
     msg.textContent = r.note ? `${r.note} · ${r.msg || '-'}` : (r.msg || '-');
     body.appendChild(msg);
+
+    if (r.change) {
+      const change = document.createElement('div');
+      change.className = 'r-change';
+      change.textContent = `同一 Key 的上次响应：${r.change}`;
+      body.appendChild(change);
+    }
+    if (r.emptyControl) {
+      const proof = document.createElement('div');
+      proof.className = 'r-proof';
+      proof.textContent = `空消息对照：${r.emptyControl.note}（候选 ${r.emptyControl.candidate.status}/${r.emptyControl.candidate.code || '-'}，乱名 ${r.emptyControl.missing.status}/${r.emptyControl.missing.code || '-'}）`;
+      body.appendChild(proof);
+    }
+    if (r.keyTag) {
+      const action = document.createElement('button');
+      action.className = 'btn ghost probe-detail';
+      action.textContent = '空消息对照';
+      action.title = '对该候选与随机乱名发送相同的空消息请求，比较 1214 与 1211；额外发送 2 次请求';
+      action.onclick = async () => {
+        const key = $('apiKeyInput').value.trim() || apiKey;
+        if (!key || await keyTag(key) !== r.keyTag) {
+          logLine(`空消息对照取消：${r.model} 的历史结果与当前 Key 不同，请先重新扫描`);
+          return;
+        }
+        action.disabled = true;
+        action.textContent = '对照中…';
+        const randomName = 'probe-nonexist-' + Math.random().toString(36).slice(2, 10);
+        const [candidateRaw, missingRaw] = await Promise.all([
+          probeOnce(key, r.model, []), probeOnce(key, randomName, []),
+        ]);
+        const verdict = ProbeLogic.compareEmptyControl(candidateRaw, missingRaw);
+        const current = results[r.recordKey];
+        if (current && current.ts === r.ts) {
+          current.emptyControl = {
+            ...verdict,
+            candidate: { status: candidateRaw.status, code: ProbeLogic.errorOf(candidateRaw).code, body: candidateRaw.body.slice(0, 1000) },
+            missing: { model: randomName, status: missingRaw.status, code: ProbeLogic.errorOf(missingRaw).code, body: missingRaw.body.slice(0, 1000) },
+            ts: Date.now(),
+          };
+          saveResults();
+          renderResults();
+        }
+        logLine(`${r.model} 空消息对照：${verdict.note}`);
+      };
+      body.appendChild(action);
+    }
 
     card.appendChild(body);
     box.appendChild(card);
@@ -662,8 +714,8 @@ $('exportJsonBtn').onclick = () => {
 };
 $('exportCsvBtn').onclick = () => {
   const esc = (s) => `"${String(s == null ? '' : s).replace(/"/g, '""')}"`;
-  const rows = [['model', 'class', 'http_status', 'code', 'message', 'note', 'latency_ms', 'probed_at']];
-  Object.values(results).forEach((r) => rows.push([r.model, r.cls, r.status, r.code, r.msg, r.note || '', r.latencyMs, new Date(r.ts).toISOString()]));
+  const rows = [['model', 'class', 'http_status', 'code', 'message', 'note', 'latency_ms', 'probed_at', 'key_tag', 'endpoint', 'change', 'empty_control_verdict', 'billing_control_code']];
+  Object.values(results).forEach((r) => rows.push([r.model, r.cls, r.status, r.code, r.msg, r.note || '', r.latencyMs, new Date(r.ts).toISOString(), r.keyTag || '', r.endpoint || '', r.change || '', r.emptyControl?.verdict || '', r.billingControl?.code || '']));
   const csv = '\uFEFF' + rows.map((r) => r.map(esc).join(',')).join('\n');
   download(new Blob([csv], { type: 'text/csv' }), `zhipu-probe-${Date.now()}.csv`);
 };
@@ -773,6 +825,7 @@ async function init() {
     b.insertAdjacentHTML('afterbegin', `<span class="fic">${ic}</span>`);
   });
   if (apiKey) {
+    activeKeyTag = await keyTag(apiKey);
     $('apiKeyInput').value = apiKey;
     setStatus($('keyStatus'), 'ok', `已载入保存的 Key（${maskKey(apiKey)}）`);
   }
@@ -788,7 +841,7 @@ async function init() {
   updateCandSummary();
   renderStats();
   renderResults();
-  if (openModels.size > 0) {
+  if (openModels.size > 0 && apiKey && localStorage.getItem(LS.openListTag) === await keyTag(apiKey)) {
     $('openModelsBox').classList.remove('hidden');
     $('openModelsCount').textContent = openModels.size;
     const chipsBox = $('openModelsChips');
@@ -799,19 +852,20 @@ async function init() {
       chip.textContent = n;
       chipsBox.appendChild(chip);
     });
-    setStatus($('baselineStatus'), 'ok', `已载入历史拉取的 ${openModels.size} 个官方模型`);
+    setStatus($('baselineStatus'), 'ok', `已载入历史列表中的 ${openModels.size} 个名称`);
+  } else {
+    openModels = new Set();
   }
-  // 恢复历史校准基线（持久化，刷新不丢）；超过 24 小时提示重新校准
+  // 历史校准仅用于展示；每轮扫描仍用当前 Key 重新校准。
   const savedCalib = JSON.parse(localStorage.getItem(LS.calib) || 'null');
-  if (savedCalib && savedCalib.sig) {
-    calib = savedCalib;
+  if (savedCalib && savedCalib.sig && savedCalib.keyTag === activeKeyTag) {
     $('calibBox').classList.remove('hidden');
     $('calibDetail').textContent =
-      `（${savedCalib.ts ? new Date(savedCalib.ts).toLocaleString() : '时间未知'} 校准，持久化恢复）\n形态签名：${savedCalib.sig}\n详情：${savedCalib.detail || '-'}`;
+      `（${savedCalib.ts ? new Date(savedCalib.ts).toLocaleString() : '时间未知'} 的历史校准，每轮扫描会重验）\n形态签名：${savedCalib.sig}\n详情：${savedCalib.detail || '-'}`;
     if (savedCalib.ts && Date.now() - savedCalib.ts > 24 * 60 * 60 * 1000) {
       logLine('基线已过期（超过 24 小时），建议重新校准');
     } else {
-      logLine(`已载入历史校准基线：${savedCalib.sig}`);
+      logLine(`已载入历史校准记录：${savedCalib.sig}；扫描时将重新验证`);
     }
   }
   logLine('页面就绪。建议流程：保存 Key → 拉取官方列表 → 校准 → 开始嗅探');
