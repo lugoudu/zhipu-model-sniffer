@@ -1,10 +1,8 @@
 /* 内置候选词典（2026-09 重建）
  *
  * 规则一：glm 主线版本号 ≤ 5.2 的候选全部剔除——旧模型已无嗅探价值。
- * 规则二：Preview 内测代号组改用情报实锤的官方预发布形态 glm-<版本>-preview
- *         （glm-4.6-preview / glm-4.7-preview / glm-5-preview / glm-5.2-preview /
- *         glm-5.3-preview 全系在第三方配置与计费归一化代码留痕）；原字母扫描组
- *         glm-x-preview-{a..z}（26 个，无任何「x+字母」先例）已整体删除。
+ * 规则二：保留用户实测有差异响应的字面代号 glm-x-preview-{a..z}；
+ *         同时保留版本号加 preview 后缀的另一组候选。
  * 规则三：vidu 视频线改用官方定价页实锤的调用名（viduq1-* / vidu2-*，无空格
  *         无横线连写），并沿 viduq1→vidu2 的直进位规律外推 vidu3-*。
  *
@@ -43,9 +41,11 @@ const PREVIEW_NAMES = [
   'glm-5.4-preview', 'glm-5.5-preview', 'glm-6-preview', 'glm-5.3-preview',
   'glm-5.4-flash-preview', 'glm-6-flash-preview',
 ];
+const LETTER_PREVIEW_NAMES = 'abcdefghijklmnopqrstuvwxyz'.split('').map((letter) => `glm-x-preview-${letter}`);
 
 // 悬念候选（全部 > glm-5.2；专用线除外）
 const CANDIDATE_GROUPS = {
+  'Preview 字面代号（a/f/g/k 已有用户实测差异）': LETTER_PREVIEW_NAMES,
   'Preview 内测代号（实锤形态 glm-<版本>-preview）': PREVIEW_NAMES,
   '版本号外推（下一代）': [
     'glm-5.4', 'glm-5.5', 'glm-6',

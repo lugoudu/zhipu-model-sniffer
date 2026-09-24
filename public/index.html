@@ -31,7 +31,7 @@
     <!-- API Key -->
     <div class="card" id="cardKey">
       <h2>① API Key</h2>
-      <p class="hint">Key 只保存在你浏览器的 localStorage 中，嗅探时由你的浏览器<b>直连智谱官方 API</b>——本站为纯静态页面，任何服务器都不经手你的 Key 或请求。密钥来自<a href="https://www.bigmodel.cn/apikey/platform" target="_blank" rel="noopener">智谱开放平台</a>。</p>
+      <p class="hint">Key 保存在此站点的浏览器 localStorage，嗅探时由浏览器直连智谱 API，本站没有中转后端。请只在信任本站代码和浏览器环境时保存 Key。密钥来自<a href="https://www.bigmodel.cn/apikey/platform" target="_blank" rel="noopener">智谱开放平台</a>。</p>
       <div class="key-row">
         <input id="apiKeyInput" type="password" placeholder="粘贴 API Key，例如 xxxxxxxx.xxxxxxxx" autocomplete="off" spellcheck="false" />
         <button id="toggleKeyBtn" class="btn ghost" title="显示/隐藏">👁</button>
@@ -47,12 +47,14 @@
     <!-- 对照基线 -->
     <div class="card" id="cardBaseline">
       <h2>② 对照基线</h2>
-      <p class="hint">嗅探前建议先做两件事：<b>拉取官方模型列表</b>确认 Key 可用并得到“已开放”名单；<b>错误形态校准</b>用随机乱名记录“模型不存在”的真实报错，嗅探结果会与它比对，避免误判。</p>
+      <p class="hint">随机乱名只有明确返回 1211 才能作为“不存在”基线；开始扫描时会自动校准。计费对照会额外调用一次已开放的付费模型 glm-5.3，用于判断当前 Key 能否支付通用 API 请求。</p>
       <div class="row-btns">
         <button id="fetchModelsBtn" class="btn">拉取官方模型列表</button>
         <button id="calibrateBtn" class="btn">错误形态校准</button>
+        <button id="billingBtn" class="btn">计费对照（可能计费）</button>
       </div>
       <div id="baselineStatus" class="status-line" data-state="idle">尚未拉取</div>
+      <div id="billingStatus" class="status-line" data-state="idle">尚未校准</div>
       <div class="row-btns">
         <button id="hfWatchBtn" class="btn ghost">扫描 zai-org 新开源仓库（免 Key）</button>
         <button id="exportDocsProbeBtn" class="btn ghost">导出文档页探测脚本（免 Key）</button>
@@ -67,7 +69,7 @@
         <div id="openDiffChips" class="chips"></div>
       </div>
       <div id="openModelsBox" class="chips-box hidden">
-        <div class="chips-title">官方列表中的已开放模型（<span id="openModelsCount">0</span>）</div>
+        <div class="chips-title">官方列表返回的模型（<span id="openModelsCount">0</span>）</div>
         <div id="openModelsChips" class="chips"></div>
       </div>
       <div id="calibBox" class="calib-box hidden">
@@ -142,7 +144,7 @@
             <option value="2000">2s（极慢）</option>
           </select>
         </label>
-        <label class="chk"><input type="checkbox" id="skipOpen" checked /> 跳过官方列表中已开放的模型</label>
+        <label class="chk"><input type="checkbox" id="skipOpen" /> 跳过官方列表返回的名称</label>
       </div>
       <div class="row-btns">
         <button id="startBtn" class="btn primary big">🚀 开始嗅探</button>
@@ -152,7 +154,7 @@
         <div class="progress"><div id="progressBar"></div></div>
         <div class="progress-text" id="progressText">0 / 0</div>
       </div>
-      <p class="hint small">嗅探请求使用 <code>max_tokens=1</code> 最小化消耗：免费模型零成本，付费模型每次至多消耗 1 个输出 token。</p>
+      <p class="hint small">嗅探请求使用 <code>max_tokens=1</code> 控制输出长度；输入 token 仍可能计费。扫描前会增加一次随机乱名校准请求，空消息对照每次增加两次请求。</p>
     </div>
 
   </section>
@@ -162,10 +164,11 @@
 
     <div class="card sticky">
       <h2>嗅探结果</h2>
-      <p class="hint small key-hint"><span class="hint-ic" data-ic="sparkle"></span>「存在·无权」= 模型已存在但未对你开放——最有价值的信号，通常意味着新模型正在内测或即将发布。</p>
+      <p class="hint small key-hint"><span class="hint-ic" data-ic="sparkle"></span>不同报错反映当前 Key、端点和请求体下的网关行为；无权限和计费报错均不能单独预测发布时间。</p>
       <div class="stat-grid" id="statGrid">
-        <div class="stat s-locked"><span class="stat-ic" data-ic="locked"></span><b id="statLocked">0</b><span class="lbl">存在·无权</span></div>
-        <div class="stat s-likely"><span class="stat-ic" data-ic="likely"></span><b id="statLikely">0</b><span class="lbl">疑似存在</span></div>
+        <div class="stat s-locked"><span class="stat-ic" data-ic="locked"></span><b id="statLocked">0</b><span class="lbl">无权访问</span></div>
+        <div class="stat s-billing"><span class="stat-ic" data-ic="billing"></span><b id="statBilling">0</b><span class="lbl">计费受阻</span></div>
+        <div class="stat s-likely"><span class="stat-ic" data-ic="likely"></span><b id="statLikely">0</b><span class="lbl">待复核</span></div>
         <div class="stat s-open"><span class="stat-ic" data-ic="open"></span><b id="statOpen">0</b><span class="lbl">可用</span></div>
         <div class="stat s-notfound"><span class="stat-ic" data-ic="notfound"></span><b id="statNotFound">0</b><span class="lbl">不存在</span></div>
         <div class="stat s-unknown"><span class="stat-ic" data-ic="unknown"></span><b id="statUnknown">0</b><span class="lbl">无法判定</span></div>
@@ -174,8 +177,9 @@
 
       <div class="filters" id="filters">
         <button class="filter active" data-f="all">全部</button>
-        <button class="filter f-locked" data-f="locked">存在·无权</button>
-        <button class="filter f-likely" data-f="likely">疑似存在</button>
+        <button class="filter f-locked" data-f="locked">无权访问</button>
+        <button class="filter" data-f="billing">计费受阻</button>
+        <button class="filter f-likely" data-f="likely">待复核</button>
         <button class="filter f-open" data-f="open">可用</button>
         <button class="filter f-notfound" data-f="notfound">不存在</button>
         <button class="filter f-unknown" data-f="unknown">无法判定</button>
@@ -204,6 +208,7 @@
 </footer>
 
 <script src="candidates.js"></script>
+<script src="probe-logic.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
