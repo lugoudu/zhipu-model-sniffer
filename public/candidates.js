@@ -3,6 +3,9 @@
  * 规则一：glm 主线版本号 ≤ 5.2 的候选全部剔除——旧模型已无嗅探价值。
  * 规则二：保留用户实测有差异响应的字面代号 glm-x-preview-{a..z}；
  *         同时保留版本号加 preview 后缀的另一组候选。
+ *         （2026-10-19 复核：字母组 {a,f,g,k} 仍存活——a/k 绑计费 1113、
+ *          f/g 无权 1220；版本组 glm-4.7-preview 实测存活绑计费，
+ *          其余同形态名 1211；glm-4.6-air 已观测 1220→1211 摘牌。）
  * 规则三：vidu 视频线改用官方定价页实锤的调用名（viduq1-* / vidu2-*，无空格
  *         无横线连写），并沿 viduq1→vidu2 的直进位规律外推 vidu3-*。
  *
@@ -35,9 +38,10 @@ const OPEN_MODELS_SEED = {
   ],
 };
 
-// Preview 内测代号（2026-09 重建）：实锤形态 glm-<版本>-preview；
-// 其中 glm-5.4-flash-preview / glm-6-flash-preview 为组合推测（中置信度）
+// Preview 内测代号：glm-4.7-preview 于 2026-10-19 实测存活（1113 绑计费，空消息 1214 探活确认）；
+// 其余为形态外推（glm-5.4-flash-preview / glm-6-flash-preview 为组合推测，中置信度）
 const PREVIEW_NAMES = [
+  'glm-4.7-preview',
   'glm-5.4-preview', 'glm-5.5-preview', 'glm-6-preview', 'glm-5.3-preview',
   'glm-5.4-flash-preview', 'glm-6-flash-preview',
 ];
