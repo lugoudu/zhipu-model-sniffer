@@ -47,13 +47,21 @@ const PREVIEW_NAMES = [
 ];
 const LETTER_PREVIEW_NAMES = 'abcdefghijklmnopqrstuvwxyz'.split('').map((letter) => `glm-x-preview-${letter}`);
 
+// 线报高优（2026-10-21）：情报称近期发布高度集中于此四名，按可能性递减排列。
+// 排序依据：主线命名史无跳版（5→5.1→5.2→5.3 严格递进）故 5.4 系先于 5.5 系；
+// 5.3 与 Flash 同日发布（8/25）的先例使主版本先于 flash。2026-10-21 实测均 1211
+// （智谱习惯发布时才注册名字，1211 恰是「发布前夜」的正常状态），挂条目即强信号。
+const HOT_TIP_NAMES = [
+  'glm-5.4', 'glm-5.4-flash', 'glm-5.5', 'glm-5.5-flash',
+];
+
 // 悬念候选（全部 > glm-5.2；专用线除外）
 const CANDIDATE_GROUPS = {
+  '线报高优（2026-10-21 · 可能性递减）': HOT_TIP_NAMES,
   'Preview 字面代号（a/f/g/k 已有用户实测差异）': LETTER_PREVIEW_NAMES,
   'Preview 内测代号（实锤形态 glm-<版本>-preview）': PREVIEW_NAMES,
   '版本号外推（下一代）': [
-    'glm-5.4', 'glm-5.5', 'glm-6',
-    'glm-5.4-flash', 'glm-5.5-flash', 'glm-6-flash', 'glm-6-turbo',
+    'glm-6', 'glm-6-flash', 'glm-6-turbo',
     'glm-5.4-flashx', 'glm-6-flashx', 'glm-5.4-turbo', 'glm-5.5-turbo',
   ],
   '5.3 变体外推（当前顶点的后缀家族）': [
