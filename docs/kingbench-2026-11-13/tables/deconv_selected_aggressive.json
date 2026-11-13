@@ -1,0 +1,410 @@
+{
+  "A": [
+    {
+      "block": "A",
+      "method": "rl",
+      "sigma": 3.8,
+      "parameter": 1000,
+      "file": "deconvolution/A_rl_s3.8_p1000.png",
+      "reblur_rmse": 0.004981650698603593,
+      "min": 0.0,
+      "max": 1.1597172270304645,
+      "roughness": 0.003023747728721452
+    },
+    {
+      "block": "A",
+      "method": "rl",
+      "sigma": 4.0,
+      "parameter": 1000,
+      "file": "deconvolution/A_rl_s4.0_p1000.png",
+      "reblur_rmse": 0.005029234726202699,
+      "min": 0.0,
+      "max": 1.5794366099149457,
+      "roughness": 0.004409070121687724
+    },
+    {
+      "block": "A",
+      "method": "rl",
+      "sigma": 4.2,
+      "parameter": 1000,
+      "file": "deconvolution/A_rl_s4.2_p1000.png",
+      "reblur_rmse": 0.005322517867311329,
+      "min": 0.0,
+      "max": 1.982673520683845,
+      "roughness": 0.007075238017552193
+    },
+    {
+      "block": "A",
+      "method": "wiener",
+      "sigma": 3.8,
+      "parameter": 1e-06,
+      "file": "deconvolution/A_wiener_s3.8_p1e-06.png",
+      "reblur_rmse": 0.004243792833738133,
+      "min": -2.425274592325294,
+      "max": 2.266614269858318,
+      "roughness": 0.04785698355118396
+    },
+    {
+      "block": "A",
+      "method": "wiener",
+      "sigma": 4.0,
+      "parameter": 1e-06,
+      "file": "deconvolution/A_wiener_s4.0_p1e-06.png",
+      "reblur_rmse": 0.004270752338320682,
+      "min": -2.627916890737764,
+      "max": 2.50963388724718,
+      "roughness": 0.05374752951914506
+    },
+    {
+      "block": "A",
+      "method": "wiener",
+      "sigma": 4.2,
+      "parameter": 1e-06,
+      "file": "deconvolution/A_wiener_s4.2_p1e-06.png",
+      "reblur_rmse": 0.004306478838469348,
+      "min": -2.8772774324912405,
+      "max": 2.7278365521319157,
+      "roughness": 0.0531327882869739
+    }
+  ],
+  "B": [
+    {
+      "block": "B",
+      "method": "rl",
+      "sigma": 3.8,
+      "parameter": 1000,
+      "file": "deconvolution/B_rl_s3.8_p1000.png",
+      "reblur_rmse": 0.004269301426150047,
+      "min": 0.0,
+      "max": 1.715271517376684,
+      "roughness": 0.0013896369965410945
+    },
+    {
+      "block": "B",
+      "method": "rl",
+      "sigma": 4.0,
+      "parameter": 1000,
+      "file": "deconvolution/B_rl_s4.0_p1000.png",
+      "reblur_rmse": 0.0043813874443013314,
+      "min": 0.0,
+      "max": 1.8002733926338899,
+      "roughness": 0.002368335012192992
+    },
+    {
+      "block": "B",
+      "method": "rl",
+      "sigma": 4.2,
+      "parameter": 1000,
+      "file": "deconvolution/B_rl_s4.2_p1000.png",
+      "reblur_rmse": 0.004750947578942922,
+      "min": 0.0,
+      "max": 2.331506565543892,
+      "roughness": 0.0047163271552559775
+    },
+    {
+      "block": "B",
+      "method": "wiener",
+      "sigma": 3.8,
+      "parameter": 1e-06,
+      "file": "deconvolution/B_wiener_s3.8_p1e-06.png",
+      "reblur_rmse": 0.003500726393610882,
+      "min": -2.584135663450182,
+      "max": 1.8587838725735706,
+      "roughness": 0.04722840049433421
+    },
+    {
+      "block": "B",
+      "method": "wiener",
+      "sigma": 4.0,
+      "parameter": 1e-06,
+      "file": "deconvolution/B_wiener_s4.0_p1e-06.png",
+      "reblur_rmse": 0.0035268398288281744,
+      "min": -2.704108847783934,
+      "max": 1.9813989890995631,
+      "roughness": 0.03892512903555133
+    },
+    {
+      "block": "B",
+      "method": "wiener",
+      "sigma": 4.2,
+      "parameter": 1e-06,
+      "file": "deconvolution/B_wiener_s4.2_p1e-06.png",
+      "reblur_rmse": 0.0035648446716214643,
+      "min": -3.096150901000795,
+      "max": 2.3998631866602937,
+      "roughness": 0.03768838716946905
+    }
+  ],
+  "C": [
+    {
+      "block": "C",
+      "method": "rl",
+      "sigma": 3.8,
+      "parameter": 1000,
+      "file": "deconvolution/C_rl_s3.8_p1000.png",
+      "reblur_rmse": 0.004827438234826474,
+      "min": 0.0,
+      "max": 1.315530704990135,
+      "roughness": 0.004213384906391038
+    },
+    {
+      "block": "C",
+      "method": "rl",
+      "sigma": 4.0,
+      "parameter": 1000,
+      "file": "deconvolution/C_rl_s4.0_p1000.png",
+      "reblur_rmse": 0.004953784902788703,
+      "min": 0.0,
+      "max": 1.830452392924603,
+      "roughness": 0.005794655504895008
+    },
+    {
+      "block": "C",
+      "method": "rl",
+      "sigma": 4.2,
+      "parameter": 1000,
+      "file": "deconvolution/C_rl_s4.2_p1000.png",
+      "reblur_rmse": 0.005284957376151258,
+      "min": 0.0,
+      "max": 2.1230770462628086,
+      "roughness": 0.007699860705929232
+    },
+    {
+      "block": "C",
+      "method": "wiener",
+      "sigma": 3.8,
+      "parameter": 1e-06,
+      "file": "deconvolution/C_wiener_s3.8_p1e-06.png",
+      "reblur_rmse": 0.004292002826949054,
+      "min": -2.0072267558270283,
+      "max": 1.8764615453999656,
+      "roughness": 0.03621137762879863
+    },
+    {
+      "block": "C",
+      "method": "wiener",
+      "sigma": 4.0,
+      "parameter": 1e-06,
+      "file": "deconvolution/C_wiener_s4.0_p1e-06.png",
+      "reblur_rmse": 0.0043171583523880985,
+      "min": -2.0330217357653906,
+      "max": 1.9692617088807653,
+      "roughness": 0.031254544802710345
+    },
+    {
+      "block": "C",
+      "method": "wiener",
+      "sigma": 4.2,
+      "parameter": 1e-06,
+      "file": "deconvolution/C_wiener_s4.2_p1e-06.png",
+      "reblur_rmse": 0.004338824213807477,
+      "min": -2.681088269907639,
+      "max": 2.092705428909903,
+      "roughness": 0.03757439444183604
+    }
+  ],
+  "D": [
+    {
+      "block": "D",
+      "method": "rl",
+      "sigma": 3.8,
+      "parameter": 1000,
+      "file": "deconvolution/D_rl_s3.8_p1000.png",
+      "reblur_rmse": 0.005102532682236538,
+      "min": 0.0,
+      "max": 0.8815228498511823,
+      "roughness": 0.001313998675582953
+    },
+    {
+      "block": "D",
+      "method": "rl",
+      "sigma": 4.0,
+      "parameter": 1000,
+      "file": "deconvolution/D_rl_s4.0_p1000.png",
+      "reblur_rmse": 0.005070613739271292,
+      "min": 0.0,
+      "max": 1.4002970155170646,
+      "roughness": 0.0029975363910980392
+    },
+    {
+      "block": "D",
+      "method": "rl",
+      "sigma": 4.2,
+      "parameter": 1000,
+      "file": "deconvolution/D_rl_s4.2_p1000.png",
+      "reblur_rmse": 0.005195092562961957,
+      "min": 0.0,
+      "max": 2.4917425392879338,
+      "roughness": 0.008183110006740336
+    },
+    {
+      "block": "D",
+      "method": "wiener",
+      "sigma": 3.8,
+      "parameter": 1e-06,
+      "file": "deconvolution/D_wiener_s3.8_p1e-06.png",
+      "reblur_rmse": 0.0036085630457514672,
+      "min": -2.1885757602692895,
+      "max": 2.7305041822511216,
+      "roughness": 0.03805948181025895
+    },
+    {
+      "block": "D",
+      "method": "wiener",
+      "sigma": 4.0,
+      "parameter": 1e-06,
+      "file": "deconvolution/D_wiener_s4.0_p1e-06.png",
+      "reblur_rmse": 0.003719350993589144,
+      "min": -2.4863136598927627,
+      "max": 3.0585096603138893,
+      "roughness": 0.03989996303067408
+    },
+    {
+      "block": "D",
+      "method": "wiener",
+      "sigma": 4.2,
+      "parameter": 1e-06,
+      "file": "deconvolution/D_wiener_s4.2_p1e-06.png",
+      "reblur_rmse": 0.0038380494872074845,
+      "min": -2.62852212922992,
+      "max": 3.2347944078856066,
+      "roughness": 0.04285943594094562
+    }
+  ],
+  "E": [
+    {
+      "block": "E",
+      "method": "rl",
+      "sigma": 3.8,
+      "parameter": 1000,
+      "file": "deconvolution/E_rl_s3.8_p1000.png",
+      "reblur_rmse": 0.0037596824154936524,
+      "min": 0.0,
+      "max": 0.9113259296495632,
+      "roughness": 0.0022919869873434468
+    },
+    {
+      "block": "E",
+      "method": "rl",
+      "sigma": 4.0,
+      "parameter": 1000,
+      "file": "deconvolution/E_rl_s4.0_p1000.png",
+      "reblur_rmse": 0.003819903974299546,
+      "min": 0.0,
+      "max": 1.6749780910900438,
+      "roughness": 0.004382778364070783
+    },
+    {
+      "block": "E",
+      "method": "rl",
+      "sigma": 4.2,
+      "parameter": 1000,
+      "file": "deconvolution/E_rl_s4.2_p1000.png",
+      "reblur_rmse": 0.003863274279035796,
+      "min": 0.0,
+      "max": 2.6432677934586315,
+      "roughness": 0.009605809867197928
+    },
+    {
+      "block": "E",
+      "method": "wiener",
+      "sigma": 3.8,
+      "parameter": 1e-06,
+      "file": "deconvolution/E_wiener_s3.8_p1e-06.png",
+      "reblur_rmse": 0.0031428902535535143,
+      "min": -1.0872640168569925,
+      "max": 1.5760679446735941,
+      "roughness": 0.04171733936669417
+    },
+    {
+      "block": "E",
+      "method": "wiener",
+      "sigma": 4.0,
+      "parameter": 1e-06,
+      "file": "deconvolution/E_wiener_s4.0_p1e-06.png",
+      "reblur_rmse": 0.0031583516481549926,
+      "min": -1.416154772379853,
+      "max": 1.648212363310575,
+      "roughness": 0.03226458428725223
+    },
+    {
+      "block": "E",
+      "method": "wiener",
+      "sigma": 4.2,
+      "parameter": 1e-06,
+      "file": "deconvolution/E_wiener_s4.2_p1e-06.png",
+      "reblur_rmse": 0.0031885197734840137,
+      "min": -2.6521221174230014,
+      "max": 2.1356179769056705,
+      "roughness": 0.046169137907697465
+    }
+  ],
+  "F": [
+    {
+      "block": "F",
+      "method": "rl",
+      "sigma": 3.8,
+      "parameter": 1000,
+      "file": "deconvolution/F_rl_s3.8_p1000.png",
+      "reblur_rmse": 0.0038375199456894132,
+      "min": 0.0,
+      "max": 0.9267619568386486,
+      "roughness": 0.0028875248227709926
+    },
+    {
+      "block": "F",
+      "method": "rl",
+      "sigma": 4.0,
+      "parameter": 1000,
+      "file": "deconvolution/F_rl_s4.0_p1000.png",
+      "reblur_rmse": 0.0038771933411967598,
+      "min": 0.0,
+      "max": 1.6919568114569312,
+      "roughness": 0.006009794713842743
+    },
+    {
+      "block": "F",
+      "method": "rl",
+      "sigma": 4.2,
+      "parameter": 1000,
+      "file": "deconvolution/F_rl_s4.2_p1000.png",
+      "reblur_rmse": 0.004060275410040994,
+      "min": 0.0,
+      "max": 2.511866869267161,
+      "roughness": 0.012825204297105253
+    },
+    {
+      "block": "F",
+      "method": "wiener",
+      "sigma": 3.8,
+      "parameter": 1e-06,
+      "file": "deconvolution/F_wiener_s3.8_p1e-06.png",
+      "reblur_rmse": 0.0031887155203382633,
+      "min": -1.6017978801111332,
+      "max": 1.3788651429311745,
+      "roughness": 0.02576677178820961
+    },
+    {
+      "block": "F",
+      "method": "wiener",
+      "sigma": 4.0,
+      "parameter": 1e-06,
+      "file": "deconvolution/F_wiener_s4.0_p1e-06.png",
+      "reblur_rmse": 0.0032118633779505586,
+      "min": -1.5869253233663294,
+      "max": 1.6384940008188014,
+      "roughness": 0.028097303947866355
+    },
+    {
+      "block": "F",
+      "method": "wiener",
+      "sigma": 4.2,
+      "parameter": 1e-06,
+      "file": "deconvolution/F_wiener_s4.2_p1e-06.png",
+      "reblur_rmse": 0.0032299822852435637,
+      "min": -2.3401582081044827,
+      "max": 1.8768863583338897,
+      "roughness": 0.03352162776349484
+    }
+  ]
+}

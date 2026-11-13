@@ -1,0 +1,1508 @@
+{
+  "A": [
+    {
+      "text": "GLM Alpha",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.5,
+      "width": 81.22265625,
+      "score": 0.09209979852099964,
+      "rmse": 0.01177207828800589,
+      "params": [
+        4.155929105599952,
+        7.647223697295603,
+        3.975129815008203,
+        0.9704712404511476,
+        0.0029505399227005226
+      ]
+    },
+    {
+      "text": "GLM-Secret",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 82.19921875,
+      "score": 0.11602424288225877,
+      "rmse": 0.01483007012447627,
+      "params": [
+        3.885587318046757,
+        7.769152630673402,
+        4.050505723421995,
+        1.3021269771283177,
+        0.001377508694305641
+      ]
+    },
+    {
+      "text": "GLM Model",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.75,
+      "width": 81.3984375,
+      "score": 0.11633329755498306,
+      "rmse": 0.014869573096914964,
+      "params": [
+        4.0608591539027685,
+        7.656389230934861,
+        3.852744502399116,
+        1.2011687783282674,
+        0.0033519150393223423
+      ]
+    },
+    {
+      "text": "GLM Secret",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 81.359375,
+      "score": 0.1195669519794944,
+      "rmse": 0.01528289466387827,
+      "params": [
+        4.3484484073999585,
+        7.787590303600033,
+        4.056696828738279,
+        1.3229476868251044,
+        0.001998264431891557
+      ]
+    },
+    {
+      "text": "GLM Orion",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 81.36328125,
+      "score": 0.12483147545552162,
+      "rmse": 0.015955799311923795,
+      "params": [
+        4.322983443854447,
+        7.6734092054878476,
+        3.9295494092505607,
+        1.0028501700803785,
+        0.003617892578580963
+      ]
+    },
+    {
+      "text": "GLM Nova",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 77.87890625,
+      "score": 0.13935756245243014,
+      "rmse": 0.01781250514724657,
+      "params": [
+        5.212474606056079,
+        7.5043796183783416,
+        3.987854633718562,
+        0.9902292567470143,
+        0.0077118687879092354
+      ]
+    },
+    {
+      "text": "GLM-Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.25,
+      "width": 81.03515625,
+      "score": 0.14179819062879723,
+      "rmse": 0.018124463114858793,
+      "params": [
+        4.313162692820948,
+        7.960645469839812,
+        3.9833749724534986,
+        1.0222009768713989,
+        0.004068177114794162
+      ]
+    },
+    {
+      "text": "GLM Prime",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.5,
+      "width": 81.81640625,
+      "score": 0.14312161182618163,
+      "rmse": 0.01829362111730614,
+      "params": [
+        4.02871044108014,
+        7.999604672705021,
+        3.9906910328189467,
+        0.9817396550515093,
+        0.006778723188950362
+      ]
+    },
+    {
+      "text": "GLM Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.5,
+      "width": 81.5,
+      "score": 0.14857405244155583,
+      "rmse": 0.018990545093423777,
+      "params": [
+        4.236472740313276,
+        7.848107011104465,
+        4.0094450278293765,
+        1.0225551341100552,
+        0.002968274632317917
+      ]
+    },
+    {
+      "text": "GLM Flash",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 80.5,
+      "score": 0.15164988255325015,
+      "rmse": 0.019383693758859948,
+      "params": [
+        4.303901034697946,
+        7.74001440493213,
+        3.9725727741175105,
+        0.9774491475139973,
+        0.004371556031990096
+      ]
+    },
+    {
+      "text": "GLM-xxxxx",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.25,
+      "width": 81.36328125,
+      "score": 0.16004950676945212,
+      "rmse": 0.02045732296816179,
+      "params": [
+        4.425416081304809,
+        7.51793979817228,
+        4.089342375766592,
+        1.0542159640127597,
+        0.005399567121907922
+      ]
+    },
+    {
+      "text": "GLM-XXXX",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 82.25390625,
+      "score": 0.16097198154887896,
+      "rmse": 0.020575232512987207,
+      "params": [
+        3.6670347511639516,
+        7.974631103338826,
+        3.830400469818757,
+        0.9486167567850201,
+        0.00130412964044921
+      ]
+    },
+    {
+      "text": "GLM-5.6 Air",
+      "font": "/System/Library/Fonts/Supplemental/Arial.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 81.359375,
+      "score": 0.1863391622604321,
+      "rmse": 0.0238176330619342,
+      "params": [
+        4.617466974175926,
+        8.079941014922515,
+        4.051477531766039,
+        1.4319358695421305,
+        0.004313659946317663
+      ]
+    },
+    {
+      "text": "Z-AI Orion",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 76.98828125,
+      "score": 0.19349489571338754,
+      "rmse": 0.02473226974701975,
+      "params": [
+        7.608267972186978,
+        7.830944290455747,
+        4.105925275944737,
+        1.1064052939618063,
+        0.00744994365403122
+      ]
+    },
+    {
+      "text": "Z-AI-Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 79.31640625,
+      "score": 0.19499107665775012,
+      "rmse": 0.024923509679059805,
+      "params": [
+        6.255675855256541,
+        7.869310706761619,
+        4.166373196063786,
+        1.0742316420754825,
+        0.004092437857947132
+      ]
+    },
+    {
+      "text": "Z.AI-Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.4453125,
+      "score": 0.2052963054566953,
+      "rmse": 0.026240710825480715,
+      "params": [
+        6.838031918820364,
+        7.814948926778129,
+        4.16386116139416,
+        1.0790495184719053,
+        0.005003076519924369
+      ]
+    },
+    {
+      "text": "Z-AI Alpha",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.15625,
+      "score": 0.20571634610343242,
+      "rmse": 0.026294399882969877,
+      "params": [
+        6.761398715452358,
+        7.848579660192545,
+        4.11022065288638,
+        1.0282959324280316,
+        0.00613515531030339
+      ]
+    },
+    {
+      "text": "Z-AI Prime",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.76171875,
+      "score": 0.20575360252686078,
+      "rmse": 0.026299161951295464,
+      "params": [
+        6.458154073497118,
+        8.0236220695497,
+        4.309007311852804,
+        1.0823277778300846,
+        0.005758239585754389
+      ]
+    },
+    {
+      "text": "Z-AI Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.4453125,
+      "score": 0.2083955412924897,
+      "rmse": 0.026636851180593935,
+      "params": [
+        6.818360711905572,
+        7.8906161221180655,
+        4.193319778099254,
+        1.09135799228718,
+        0.005060861301668813
+      ]
+    },
+    {
+      "text": "GLM-6-Next",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 83.0390625,
+      "score": 0.20912204795801906,
+      "rmse": 0.026729712332091676,
+      "params": [
+        3.583200729825418,
+        7.972487947872418,
+        4.174954832762937,
+        1.3134862478948064,
+        0.00016084965323764585
+      ]
+    },
+    {
+      "text": "Z.AI Orion",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 76.1171875,
+      "score": 0.20937287307487412,
+      "rmse": 0.026761772477278022,
+      "params": [
+        7.995264372698381,
+        7.792040394245637,
+        4.12214203828351,
+        1.1158677028025992,
+        0.007779038440717568
+      ]
+    },
+    {
+      "text": "GLM-6.0 Air",
+      "font": "/System/Library/Fonts/Supplemental/Arial.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 81.359375,
+      "score": 0.2117639043188357,
+      "rmse": 0.02706739102851259,
+      "params": [
+        4.780853037450427,
+        8.059988380080384,
+        4.047856716287038,
+        1.418927550198873,
+        0.005137596101778116
+      ]
+    },
+    {
+      "text": "GLM-5-Next",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 83.0390625,
+      "score": 0.21367376384361858,
+      "rmse": 0.027311506826873555,
+      "params": [
+        3.468531482587973,
+        7.980480192390174,
+        4.141297270479259,
+        1.3274330816658995,
+        0.0006455243228369381
+      ]
+    },
+    {
+      "text": "Z.AI Prime",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 77.890625,
+      "score": 0.21673761067417247,
+      "rmse": 0.02770312380466222,
+      "params": [
+        6.800650965897279,
+        7.984352157357119,
+        4.288247330775334,
+        1.0943290921622288,
+        0.0042638337895457455
+      ]
+    },
+    {
+      "text": "Zhipu Alpha",
+      "font": "/System/Library/Fonts/Supplemental/Arial.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Regular"
+      ],
+      "size": 15.5,
+      "width": 81.875,
+      "score": 0.2285653474715547,
+      "rmse": 0.029214929973456004,
+      "params": [
+        3.015257416476159,
+        7.632594957864602,
+        4.112144898424236,
+        1.2813829563366088,
+        0.003106560730163875
+      ]
+    }
+  ],
+  "B": [
+    {
+      "text": "GLM Alpha",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.5,
+      "width": 81.22265625,
+      "score": 0.09880673443111475,
+      "rmse": 0.01262975249202166,
+      "params": [
+        4.120140487832814,
+        7.133330451877185,
+        3.981542749599359,
+        0.9675548843992895,
+        0.004128328874808953
+      ]
+    },
+    {
+      "text": "GLM-Secret",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 82.19921875,
+      "score": 0.12052352913994736,
+      "rmse": 0.01540565378733084,
+      "params": [
+        3.8499803928440453,
+        7.255968980697259,
+        4.055605408127115,
+        1.297870459636035,
+        0.0026266644811410904
+      ]
+    },
+    {
+      "text": "GLM Model",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.75,
+      "width": 81.3984375,
+      "score": 0.12284373881246183,
+      "rmse": 0.015702229461672976,
+      "params": [
+        4.027392067350524,
+        7.14321108755377,
+        3.8523845209428127,
+        1.1962731455764615,
+        0.004602118432271313
+      ]
+    },
+    {
+      "text": "GLM Secret",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 81.359375,
+      "score": 0.12360796408906168,
+      "rmse": 0.015799914868919504,
+      "params": [
+        4.312540933800968,
+        7.275428558355963,
+        4.064331141664441,
+        1.3191748449134604,
+        0.003212972147601118
+      ]
+    },
+    {
+      "text": "GLM Orion",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 81.36328125,
+      "score": 0.12861848412008736,
+      "rmse": 0.016440373519967112,
+      "params": [
+        4.294095747586228,
+        7.158546532465739,
+        3.9408215014099373,
+        1.0007102870984215,
+        0.0046993295233390495
+      ]
+    },
+    {
+      "text": "GLM Nova",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 77.87890625,
+      "score": 0.14059928802667565,
+      "rmse": 0.017971793304932766,
+      "params": [
+        5.141401530776441,
+        6.996427916602103,
+        4.000046612706617,
+        0.988906797993361,
+        0.007898430260240067
+      ]
+    },
+    {
+      "text": "GLM-Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.25,
+      "width": 81.03515625,
+      "score": 0.14371329124942706,
+      "rmse": 0.018369833885761067,
+      "params": [
+        4.282729279164051,
+        7.450034158579898,
+        4.002916147183251,
+        1.0212624920539424,
+        0.005104297894714971
+      ]
+    },
+    {
+      "text": "GLM Prime",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.5,
+      "width": 81.81640625,
+      "score": 0.14411166630976005,
+      "rmse": 0.018420755297545072,
+      "params": [
+        3.986598272693489,
+        7.499897619858435,
+        4.052881360488986,
+        1.007956160443982,
+        0.003153843615516927
+      ]
+    },
+    {
+      "text": "GLM Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.5,
+      "width": 81.5,
+      "score": 0.15052549998866266,
+      "rmse": 0.019240589414682173,
+      "params": [
+        4.2064695715663625,
+        7.335987896722682,
+        4.0279522858188646,
+        1.021375045985677,
+        0.00404344951416179
+      ]
+    },
+    {
+      "text": "GLM Flash",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 80.5,
+      "score": 0.1553987695104502,
+      "rmse": 0.01986350432267358,
+      "params": [
+        4.266552204914127,
+        7.226446366694717,
+        3.9905850011294857,
+        0.9761003919327271,
+        0.005400473878675606
+      ]
+    },
+    {
+      "text": "GLM-xxxxx",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.5,
+      "width": 82.69921875,
+      "score": 0.1600297222951209,
+      "rmse": 0.020455445629198647,
+      "params": [
+        3.927029353807456,
+        6.848085404464717,
+        4.067034120367416,
+        1.0389466587736267,
+        0.003190591662002823
+      ]
+    },
+    {
+      "text": "GLM-XXXX",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 82.25390625,
+      "score": 0.16400585434198606,
+      "rmse": 0.0209636859218936,
+      "params": [
+        3.6438915299531884,
+        7.464715068639061,
+        3.849028075925519,
+        0.9468460760974444,
+        0.0024712693746824664
+      ]
+    },
+    {
+      "text": "GLM-5.6 Air",
+      "font": "/System/Library/Fonts/Supplemental/Arial.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 81.359375,
+      "score": 0.1843109395174441,
+      "rmse": 0.02355913856560223,
+      "params": [
+        4.580235213778871,
+        7.57753221285612,
+        4.0397704693600645,
+        1.4360549316116251,
+        0.00323434208812907
+      ]
+    },
+    {
+      "text": "Z-AI Orion",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 76.98828125,
+      "score": 0.19694263954142338,
+      "rmse": 0.025173757708465874,
+      "params": [
+        7.58075781049752,
+        7.31828878206305,
+        4.127092309105294,
+        1.1053702302011177,
+        0.008474887272691084
+      ]
+    },
+    {
+      "text": "Z-AI-Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 79.31640625,
+      "score": 0.1979930981409535,
+      "rmse": 0.02530803025771636,
+      "params": [
+        6.223369002518952,
+        7.356655651785974,
+        4.187778706342172,
+        1.0729459127160874,
+        0.005222259984370662
+      ]
+    },
+    {
+      "text": "Z-AI Prime",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.76171875,
+      "score": 0.20694372173055484,
+      "rmse": 0.026452123939556704,
+      "params": [
+        6.42494777152025,
+        7.522780520580846,
+        4.2938977852040265,
+        1.0839459749378417,
+        0.004812625308898369
+      ]
+    },
+    {
+      "text": "Z.AI-Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.4453125,
+      "score": 0.2081957157760711,
+      "rmse": 0.026612157311850567,
+      "params": [
+        6.806017502768557,
+        7.3014612944125465,
+        4.186121677745632,
+        1.0779161047300811,
+        0.006113307707389347
+      ]
+    },
+    {
+      "text": "Z-AI Alpha",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.15625,
+      "score": 0.20934296386595533,
+      "rmse": 0.0267588017638265,
+      "params": [
+        6.723601690084917,
+        7.336897844491125,
+        4.127839959235149,
+        1.0265201835599262,
+        0.007263282944452587
+      ]
+    },
+    {
+      "text": "GLM-6.0 Air",
+      "font": "/System/Library/Fonts/Supplemental/Arial.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 81.359375,
+      "score": 0.21017416968089425,
+      "rmse": 0.02686504881037702,
+      "params": [
+        4.742214461183458,
+        7.5573200288097055,
+        4.036123744700528,
+        1.4229195987836318,
+        0.004079689650192576
+      ]
+    },
+    {
+      "text": "Z-AI Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.4453125,
+      "score": 0.2107610043220787,
+      "rmse": 0.026940059651637756,
+      "params": [
+        6.7888177493899935,
+        7.379513549583967,
+        4.216970504409067,
+        1.0905635816754884,
+        0.00615709632137842
+      ]
+    },
+    {
+      "text": "GLM-6-Next",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 83.0390625,
+      "score": 0.21207713280139093,
+      "rmse": 0.02710829086621153,
+      "params": [
+        3.5302107547746617,
+        7.460957131247482,
+        4.194621030150765,
+        1.3109174734273994,
+        0.0014036428575902593
+      ]
+    },
+    {
+      "text": "Z.AI Orion",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 76.1171875,
+      "score": 0.21245428013724496,
+      "rmse": 0.027156498891021643,
+      "params": [
+        7.997294057107041,
+        7.278505119225759,
+        4.142608400735224,
+        1.1145846089018157,
+        0.00883515849851587
+      ]
+    },
+    {
+      "text": "GLM-5-Next",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 83.0390625,
+      "score": 0.2163490718228262,
+      "rmse": 0.02765434203177607,
+      "params": [
+        3.418550131756428,
+        7.469500097468685,
+        4.160262318195254,
+        1.3248301750204734,
+        0.0018780631695579895
+      ]
+    },
+    {
+      "text": "Z.AI Prime",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 77.890625,
+      "score": 0.21895703425017773,
+      "rmse": 0.02798769906614811,
+      "params": [
+        6.980693163240113,
+        7.7455966204871,
+        4.282520911764051,
+        1.111080250256516,
+        0.005266386986969132
+      ]
+    },
+    {
+      "text": "Zhipu Alpha",
+      "font": "/System/Library/Fonts/Supplemental/Arial.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Regular"
+      ],
+      "size": 15.5,
+      "width": 81.875,
+      "score": 0.23073477336209453,
+      "rmse": 0.029493162542454134,
+      "params": [
+        2.9795763650027207,
+        7.118392411400814,
+        4.129897923171343,
+        1.2800814005772514,
+        0.004053264373730135
+      ]
+    }
+  ],
+  "C": [
+    {
+      "text": "GLM Alpha",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.5,
+      "width": 81.22265625,
+      "score": 0.09530162158542961,
+      "rmse": 0.012157909642118582,
+      "params": [
+        4.129195370659233,
+        7.390962931104071,
+        3.9947516583995886,
+        0.9693953120959655,
+        0.003437677716611364
+      ]
+    },
+    {
+      "text": "GLM-Secret",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 82.19921875,
+      "score": 0.1178939925390612,
+      "rmse": 0.015040085203100555,
+      "params": [
+        3.856839718161555,
+        7.514303300643801,
+        4.068738144624205,
+        1.3004626873166747,
+        0.0019030356331851343
+      ]
+    },
+    {
+      "text": "GLM Model",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.75,
+      "width": 81.3984375,
+      "score": 0.11877360215269883,
+      "rmse": 0.015152299602237077,
+      "params": [
+        4.027252216541094,
+        7.400756925290977,
+        3.8692992085287674,
+        1.1992521901721378,
+        0.0038706440651693212
+      ]
+    },
+    {
+      "text": "GLM Secret",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 81.359375,
+      "score": 0.120917188078186,
+      "rmse": 0.015425763196650611,
+      "params": [
+        4.319179407614018,
+        7.533130446760156,
+        4.075550887255636,
+        1.321460466103835,
+        0.0025126598819815546
+      ]
+    },
+    {
+      "text": "GLM Orion",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 81.36328125,
+      "score": 0.12685449187122658,
+      "rmse": 0.01618320259624034,
+      "params": [
+        4.298711856751096,
+        7.4168500826198045,
+        3.9507029080554106,
+        1.0019812341676455,
+        0.004076432170677547
+      ]
+    },
+    {
+      "text": "GLM Nova",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 77.87890625,
+      "score": 0.14068531210831453,
+      "rmse": 0.01794764122720493,
+      "params": [
+        5.191465736997924,
+        7.246944782168649,
+        4.010231863595298,
+        0.9898382336393561,
+        0.00808839566450438
+      ]
+    },
+    {
+      "text": "GLM-Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.25,
+      "width": 81.03515625,
+      "score": 0.1430518205814792,
+      "rmse": 0.018249543710136474,
+      "params": [
+        4.286598373089871,
+        7.706419461971715,
+        4.008333511949248,
+        1.0219030430672846,
+        0.004508070551937951
+      ]
+    },
+    {
+      "text": "GLM Prime",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.5,
+      "width": 81.81640625,
+      "score": 0.14349808930705388,
+      "rmse": 0.018306475530932165,
+      "params": [
+        4.0010297503328225,
+        7.756215497989773,
+        4.063155854469793,
+        1.0088850499289563,
+        0.002585331279987468
+      ]
+    },
+    {
+      "text": "GLM Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.5,
+      "width": 81.5,
+      "score": 0.14934837342652246,
+      "rmse": 0.019052813573474922,
+      "params": [
+        4.2102642834520845,
+        7.592618832555609,
+        4.031912246897498,
+        1.0219313137684556,
+        0.003448664788094406
+      ]
+    },
+    {
+      "text": "GLM Flash",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 80.5,
+      "score": 0.15327640212827434,
+      "rmse": 0.019553923808884068,
+      "params": [
+        4.2731368871099455,
+        7.483679340974717,
+        3.998357639083787,
+        0.9772063984939873,
+        0.004778612246200349
+      ]
+    },
+    {
+      "text": "GLM-xxxxx",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.25,
+      "width": 81.36328125,
+      "score": 0.16226085762703613,
+      "rmse": 0.020700097361027292,
+      "params": [
+        4.40217950792306,
+        7.261098466427024,
+        4.112318168869673,
+        1.0537821195356087,
+        0.0057856595096388895
+      ]
+    },
+    {
+      "text": "GLM-XXXX",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 82.25390625,
+      "score": 0.16291094422418173,
+      "rmse": 0.02078303083032365,
+      "params": [
+        3.6432624554959627,
+        7.722307000588714,
+        3.852608795099567,
+        0.9474772613072342,
+        0.001854169590335438
+      ]
+    },
+    {
+      "text": "GLM-5.6 Air",
+      "font": "/System/Library/Fonts/Supplemental/Arial.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 81.359375,
+      "score": 0.18457686451778027,
+      "rmse": 0.02354701634138642,
+      "params": [
+        4.583313901518508,
+        7.834097831799247,
+        4.043329285430414,
+        1.4367800147672984,
+        0.0025906776260536447
+      ]
+    },
+    {
+      "text": "Z-AI Orion",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 76.98828125,
+      "score": 0.1931581133755442,
+      "rmse": 0.024641751630184255,
+      "params": [
+        7.5788631698716715,
+        7.57880628449152,
+        4.1284347170336435,
+        1.106089176981937,
+        0.007875716077219479
+      ]
+    },
+    {
+      "text": "Z-AI-Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 79.31640625,
+      "score": 0.19457626880070053,
+      "rmse": 0.024822669910804226,
+      "params": [
+        6.22568050230807,
+        7.616376264928327,
+        4.188587702176881,
+        1.0736912608907854,
+        0.004580445766569925
+      ]
+    },
+    {
+      "text": "Z-AI Prime",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.76171875,
+      "score": 0.2040280231429744,
+      "rmse": 0.02602845815806776,
+      "params": [
+        6.429741678814347,
+        7.780832914320924,
+        4.294530410177425,
+        1.084633224164802,
+        0.004155899155970086
+      ]
+    },
+    {
+      "text": "Z.AI-Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.4453125,
+      "score": 0.20487433843175637,
+      "rmse": 0.026136425101741752,
+      "params": [
+        6.807258840247635,
+        7.561787643620296,
+        4.185641362579242,
+        1.0784675770566934,
+        0.005490935880951601
+      ]
+    },
+    {
+      "text": "Z-AI Alpha",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.15625,
+      "score": 0.20551420741792129,
+      "rmse": 0.026218055080195098,
+      "params": [
+        6.730844595701148,
+        7.596132517017749,
+        4.132525449082098,
+        1.0278388414038802,
+        0.006589971215160581
+      ]
+    },
+    {
+      "text": "Z-AI Turbo",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 78.4453125,
+      "score": 0.20745294932574226,
+      "rmse": 0.0264653861176166,
+      "params": [
+        6.786560127600381,
+        7.638505803494878,
+        4.215643665914179,
+        1.0910068134427138,
+        0.005536259460191767
+      ]
+    },
+    {
+      "text": "Z.AI Orion",
+      "font": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 76.1171875,
+      "score": 0.2089790971862302,
+      "rmse": 0.026660081312510974,
+      "params": [
+        7.995537252785592,
+        7.539519937725047,
+        4.142861123551656,
+        1.1151523979593672,
+        0.00824387996869369
+      ]
+    },
+    {
+      "text": "GLM-6.0 Air",
+      "font": "/System/Library/Fonts/Supplemental/Arial.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 81.359375,
+      "score": 0.21068841217078646,
+      "rmse": 0.026878143678989445,
+      "params": [
+        4.746299351017598,
+        7.814039452665189,
+        4.040793833912685,
+        1.4237329913957886,
+        0.0034366828157195435
+      ]
+    },
+    {
+      "text": "GLM-6-Next",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 83.0390625,
+      "score": 0.21069052081738546,
+      "rmse": 0.02687841268527067,
+      "params": [
+        3.537054667699897,
+        7.721014000723065,
+        4.2038581266598865,
+        1.313195877240529,
+        0.0006344651152826031
+      ]
+    },
+    {
+      "text": "GLM-5-Next",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 0,
+      "family": [
+        "Helvetica",
+        "Regular"
+      ],
+      "size": 15.25,
+      "width": 83.0390625,
+      "score": 0.2151509186329111,
+      "rmse": 0.02744743882256942,
+      "params": [
+        3.4238855621203883,
+        7.729331853929788,
+        4.16877546786292,
+        1.3269215762390572,
+        0.0011318934572465225
+      ]
+    },
+    {
+      "text": "Z.AI Prime",
+      "font": "/System/Library/Fonts/Helvetica.ttc",
+      "index": 1,
+      "family": [
+        "Helvetica",
+        "Bold"
+      ],
+      "size": 15.75,
+      "width": 77.890625,
+      "score": 0.2163729804940344,
+      "rmse": 0.027603340867439635,
+      "params": [
+        6.86830390778013,
+        7.732836702678963,
+        4.303483465963592,
+        1.0946656898382916,
+        0.004587934451427307
+      ]
+    },
+    {
+      "text": "Zhipu Alpha",
+      "font": "/System/Library/Fonts/Supplemental/Arial.ttf",
+      "index": 0,
+      "family": [
+        "Arial",
+        "Regular"
+      ],
+      "size": 15.5,
+      "width": 81.875,
+      "score": 0.228408856824159,
+      "rmse": 0.029138793197116902,
+      "params": [
+        2.9900106149008314,
+        7.376725018941988,
+        4.134186309964823,
+        1.2812729152243474,
+        0.0034402306696675144
+      ]
+    }
+  ]
+}

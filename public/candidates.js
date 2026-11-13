@@ -47,17 +47,33 @@ const PREVIEW_NAMES = [
 ];
 const LETTER_PREVIEW_NAMES = 'abcdefghijklmnopqrstuvwxyz'.split('').map((letter) => `glm-x-preview-${letter}`);
 
-// 线报高优（2026-10-21）：情报称近期发布高度集中于此四名，按可能性递减排列。
-// 排序依据：主线命名史无跳版（5→5.1→5.2→5.3 严格递进）故 5.4 系先于 5.5 系；
-// 5.3 与 Flash 同日发布（8/25）的先例使主版本先于 flash。2026-10-21 实测均 1211
-// （智谱习惯发布时才注册名字，1211 恰是「发布前夜」的正常状态），挂条目即强信号。
+// 线报高优（2026-11-13 更新）：证据链反转，5.5 系先验升至首位。
+// a) KingBench 4 打码榜（AICodeKing，暗示→发布历史均值 3.8 天）出现三档新模型
+//    [未知前缀] Pro/Med/Small（59.4/57.1/54.0%，Pro 超 Opus 5.5 与 GPT-6 Astra）；
+//    反模糊（正向渲染差分）显示打码前缀宽 ~80px，短版本号形态如 GLM-5.5（62px）
+//    被宽度反证排除——打码的是别名/代号，底层版本号未定，仍需逐 id 探测；
+// b) glm-5.5-flash 是唯一有独立旁证的精确 id（2026-09-20 OpenCode 使用痕迹）；
+// c) 社区线报一致指向 GLM-5.5；旧「无跳版先例 → 5.4 优先」降为次级依据。
+// 2026-10-21 实测本组前身均 1211（发布前夜正常状态），挂条目即强信号。
 const HOT_TIP_NAMES = [
-  'glm-5.4', 'glm-5.4-flash', 'glm-5.5', 'glm-5.5-flash',
+  'glm-5.5', 'glm-5.5-flash', 'glm-5.5-pro', 'glm-5.4', 'glm-5.4-flash',
+];
+
+// KingBench 三档映射与代号假设（2026-11-13）：打码后缀 Pro/Med/Small 的 id 映射
+// 全部为未证实假设（Med 档也可能映射 -medium 或沿用 -air，故并存）；glm-stone 系
+// 是反模糊有限词库的拟合冠军（置信 ≤10%，纯探索）；glm-next 为代号形态外推。
+const KINGBENCH_NAMES = [
+  'glm-5.5-med', 'glm-5.5-medium', 'glm-5.5-small', 'glm-5.5-flashx', 'glm-5.5-air',
+  'glm-5.4-pro', 'glm-5.4-med', 'glm-5.4-medium', 'glm-5.4-small',
+  'glm-6-pro', 'glm-6-med', 'glm-6-medium', 'glm-6-small',
+  'glm-stone', 'glm-stone-pro', 'glm-stone-med', 'glm-stone-medium', 'glm-stone-small',
+  'glm-next',
 ];
 
 // 悬念候选（全部 > glm-5.2；专用线除外）
 const CANDIDATE_GROUPS = {
-  '线报高优（2026-10-21 · 可能性递减）': HOT_TIP_NAMES,
+  '线报高优（2026-11-13 · 可能性递减）': HOT_TIP_NAMES,
+  'KingBench 三档映射与代号（2026-11-13 打码榜）': KINGBENCH_NAMES,
   'Preview 字面代号（a/f/g/k 已有用户实测差异）': LETTER_PREVIEW_NAMES,
   'Preview 内测代号（实锤形态 glm-<版本>-preview）': PREVIEW_NAMES,
   '版本号外推（下一代）': [

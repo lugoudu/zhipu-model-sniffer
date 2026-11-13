@@ -1,0 +1,200 @@
+[
+  {
+    "noise": 0,
+    "method": "rl",
+    "parameter": 10,
+    "truth_rmse": 0.14254453506181683
+  },
+  {
+    "noise": 0,
+    "method": "rl",
+    "parameter": 30,
+    "truth_rmse": 0.1382064911535719
+  },
+  {
+    "noise": 0,
+    "method": "rl",
+    "parameter": 80,
+    "truth_rmse": 0.13290264046053957
+  },
+  {
+    "noise": 0,
+    "method": "rl",
+    "parameter": 300,
+    "truth_rmse": 0.12525120944807908
+  },
+  {
+    "noise": 0,
+    "method": "rl",
+    "parameter": 1000,
+    "truth_rmse": 0.12076135374113442
+  },
+  {
+    "noise": 0,
+    "method": "wiener",
+    "parameter": 1e-06,
+    "truth_rmse": 0.1534458125904147
+  },
+  {
+    "noise": 0,
+    "method": "wiener",
+    "parameter": 1e-05,
+    "truth_rmse": 0.12905682363195928
+  },
+  {
+    "noise": 0,
+    "method": "wiener",
+    "parameter": 0.0001,
+    "truth_rmse": 0.1280693302362097
+  },
+  {
+    "noise": 0,
+    "method": "wiener",
+    "parameter": 0.003,
+    "truth_rmse": 0.13347059580862422
+  },
+  {
+    "noise": 0,
+    "method": "wiener",
+    "parameter": 0.01,
+    "truth_rmse": 0.13566603131776495
+  },
+  {
+    "noise": 0,
+    "method": "wiener",
+    "parameter": 0.03,
+    "truth_rmse": 0.1375360188553619
+  },
+  {
+    "noise": 0.002,
+    "method": "rl",
+    "parameter": 10,
+    "truth_rmse": 0.14283074511011773
+  },
+  {
+    "noise": 0.002,
+    "method": "rl",
+    "parameter": 30,
+    "truth_rmse": 0.13920540005633492
+  },
+  {
+    "noise": 0.002,
+    "method": "rl",
+    "parameter": 80,
+    "truth_rmse": 0.1348133782373508
+  },
+  {
+    "noise": 0.002,
+    "method": "rl",
+    "parameter": 300,
+    "truth_rmse": 0.12841291743024072
+  },
+  {
+    "noise": 0.002,
+    "method": "rl",
+    "parameter": 1000,
+    "truth_rmse": 0.12458984151855942
+  },
+  {
+    "noise": 0.002,
+    "method": "wiener",
+    "parameter": 1e-06,
+    "truth_rmse": 0.19284626026610743
+  },
+  {
+    "noise": 0.002,
+    "method": "wiener",
+    "parameter": 1e-05,
+    "truth_rmse": 0.13523189932983556
+  },
+  {
+    "noise": 0.002,
+    "method": "wiener",
+    "parameter": 0.0001,
+    "truth_rmse": 0.129303333968846
+  },
+  {
+    "noise": 0.002,
+    "method": "wiener",
+    "parameter": 0.003,
+    "truth_rmse": 0.1337314054429503
+  },
+  {
+    "noise": 0.002,
+    "method": "wiener",
+    "parameter": 0.01,
+    "truth_rmse": 0.13582895260245292
+  },
+  {
+    "noise": 0.002,
+    "method": "wiener",
+    "parameter": 0.03,
+    "truth_rmse": 0.13761848803879875
+  },
+  {
+    "noise": 0.005,
+    "method": "rl",
+    "parameter": 10,
+    "truth_rmse": 0.1430515346839429
+  },
+  {
+    "noise": 0.005,
+    "method": "rl",
+    "parameter": 30,
+    "truth_rmse": 0.13966611685755603
+  },
+  {
+    "noise": 0.005,
+    "method": "rl",
+    "parameter": 80,
+    "truth_rmse": 0.13518120000228126
+  },
+  {
+    "noise": 0.005,
+    "method": "rl",
+    "parameter": 300,
+    "truth_rmse": 0.1290374729764871
+  },
+  {
+    "noise": 0.005,
+    "method": "rl",
+    "parameter": 1000,
+    "truth_rmse": 0.127303027549926
+  },
+  {
+    "noise": 0.005,
+    "method": "wiener",
+    "parameter": 1e-06,
+    "truth_rmse": 0.36314518067498675
+  },
+  {
+    "noise": 0.005,
+    "method": "wiener",
+    "parameter": 1e-05,
+    "truth_rmse": 0.1774352701666638
+  },
+  {
+    "noise": 0.005,
+    "method": "wiener",
+    "parameter": 0.0001,
+    "truth_rmse": 0.13641761824987197
+  },
+  {
+    "noise": 0.005,
+    "method": "wiener",
+    "parameter": 0.003,
+    "truth_rmse": 0.13406829291018288
+  },
+  {
+    "noise": 0.005,
+    "method": "wiener",
+    "parameter": 0.01,
+    "truth_rmse": 0.13582612929456464
+  },
+  {
+    "noise": 0.005,
+    "method": "wiener",
+    "parameter": 0.03,
+    "truth_rmse": 0.1374966781069126
+  }
+]
