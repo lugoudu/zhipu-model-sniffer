@@ -18,7 +18,7 @@ const $ = (id) => document.getElementById(id);
 const LS = {
   key: 'zp_probe_apikey',
   custom: 'zp_probe_custom',
-  builtinSel: 'zp_probe_builtin_sel_v5', // v5：保留版本预览组并恢复用户实测的字面代号组
+  builtinSel: 'zp_probe_builtin_sel_v6', // v6：线报高优重排（5.5 系升位）+ 新增 KingBench 三档映射组
   results: 'zp_probe_results',
   openList: 'zp_probe_openlist',
   openListTag: 'zp_probe_openlist_keytag',
